@@ -125,8 +125,8 @@ sysctl vm.max_map_count
 > Login to browser first, download credentials.json to Secrets/credentials.json
 
 ```sh
-kubectl delete configmap gen3-credentials
-kubectl create configmap gen3-credentials --from-file Secrets
+kubectl delete configmap credentials
+kubectl create configmap credentials --from-file Secrets
 kubectl delete pod etl
 kubectl apply -f etl.yaml
 sleep 10
@@ -307,17 +307,10 @@ gen3 tfapply
 
 ## RDS (Aurora)
 
-Standard Create
-
 ### Engine options
 
-Aurora (PostgreSQL-Compatible)
-
 `Show versions that support Serverless v2`
-Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
-
-### Templates
-Production
+Aurora MySQL 3.02.0 (compatible with MySQL 8.0.23)
 
 ### Instance configuration
 
@@ -451,14 +444,4 @@ PGHOST=foo-aurora.rds.amazonaws.com
 
 ```
 psql -U postgres -W
-```
-
-# No network connection between pods or from pods to the outside network
-
-Commands like curl revproxy-service failing or commands like apt update and ping 8.8.8.8 hanging.
-
-Restart the CoreDNS service within the kube-system namespace 
-
-```sh
-kubectl rollout restart -n kube-system deployment/coredns
 ```
