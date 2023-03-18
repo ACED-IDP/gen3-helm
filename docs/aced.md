@@ -82,6 +82,23 @@ helm upgrade --install local ./helm/gen3 -f values.yaml -f user.yaml -f fence-co
 
 ```
 
+## Add SSL Certs to ingress
+
+Replace the tls.crt and tls.key with the contents of  service-base64.crt, service-base64.key.
+
+```sh
+cat service.crt | base64 > service-base64.crt
+cat service.key | base64 > service-base64.key
+KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
+```
+
+### Alternate Method
+
+```sh
+kubectl delete secrets gen3-certs
+kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
+```
+
 ## Increase Elasticsearch Memory
 
 As referenced in the [Gen3 developer docs](gen3_developer_environments.md#elasticsearch-error), Elasticsearch may output an error regarding too low of `max virtual memory` --
@@ -173,7 +190,70 @@ export PGPORT=`cat /creds/sheepdog-creds/port`
 echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY  
 ```
 
-### Switch to AWS Kubernetes Context
+# Local Development
+
+1. Add IP address from ingress to `/etc/hosts`
+
+`kubectl get ingress`
+```
+NAME           CLASS     HOSTS                      ADDRESS         PORTS     AGE
+revproxy-dev   traefik   development.aced-idp.org   192.168.205.2   80, 443   50m
+```
+
+`/etc/hosts`
+```
+# Local ACED development
+192.168.205.2 development.aced-idp.org
+```
+
+2. Import the Certificate Authority (CA) file into a macOS keychain. This keychain can be one from the list of 'Default Keychains' (e.g. 'login'). Alternatively, create a custom keychain that will be used for development in order to avoid modifying existing records.
+
+- New Keychain... > ACED-development > Enter new passphrase for this keychain
+
+- Select the ACED-development keychain
+
+- File > Import Items... > Select the MyCA.pem file
+
+- Right click the certificate > Get Info > Trust > Change 'When using this certificate:' to Always Trust
+
+https://development.aced-idp.org should now load normally with no SSL errors.
+
+# Process for generating SSL certs for local development
+
+Create SSL Certs for development.aced-idp.org ([reference](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate)):
+
+```
+cd helm/revproxy/ssl
+chmod +x generate_certs.sh
+./generate_certs.sh
+```
+
+This will output:
+- the certificate files for development.aced-idp.org:
+    - development.aced-idp.org.crt
+    - development.aced-idp.org.key
+- the certificate authority files that can be imported into the user's keyring:
+    - MyCA.pem
+
+## Add SSL Certs to ingress
+
+Replace the tls.crt and tls.key with the contents of  service-base64.crt, service-base64.key.
+
+```sh
+cat service.crt | base64 > service-base64.crt
+cat service.key | base64 > service-base64.key
+KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
+```
+
+### Alternate Method
+
+```sh
+kubectl delete secrets gen3-certs
+kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
+```
+
+
+## Switch to AWS k8s Context
 
 ```sh
 export AWS_DEFAULT_PROFILE=staging
@@ -187,218 +267,50 @@ kubectl config get-contexts
 #           rancher-desktop                                           rancher-desktop                                           rancher-desktop
 ```
 
-### Switch to Local (Rancher Desktop) k8s Context
+## Switch to Local (Rancher Desktop) k8s Context
 ```sh
 # To switch to the local k8s context
 kubectl config use-context rancher-desktop
 # Switched to context "rancher-desktop".
 ```
 
-## No network connection between pods or from pods to the outside network
-
-Commands like curl revproxy-service failing or commands like apt update and ping 8.8.8.8 hanging.
-
-Restart the CoreDNS service within the kube-system namespace 
+# Cloud Automation
 
 ```sh
-kubectl rollout restart -n kube-system deployment/coredns
-```
-
-# AWS Setup with Cloud Automation/Terraform
-
-- https://github.com/ACED-IDP/cloud-automation
-- https://github.com/uc-cdis/cloud-automation
-- https://github.com/uc-cdis/cloud-automation/blob/master/doc/csoc-free-commons-steps.md
-
-```sh
-ssh ubuntu@ubuntu
-
-tmux new -s dev
-```
-
-## Install Gen3 Resources on AWS
-
-```sh
-gen3 workon staging aced-commons-production
-gen3 cd
-
-mv config.tfvars config.tfvars.bak
-cp ../aced-commons-staging/config.tfvars .
-
-vim config.tfvars
-
-diff ../aced-commons-staging/config.tfvars config.tfvars
-```
-
-```diff
-8c8
-< vpc_name = "aced-commons-staging"
----
-> vpc_name = "aced-commons-production"
-11c11
-< vpc_cidr_block = "172.32.0.0/16"
----
-> vpc_cidr_block = "172.33.0.0/16"
-93c93
-< hostname = "staging.aced-idp.org"
----
-> hostname = "aced-idp.org"
-```
-
-```sh
-gen3 tfplan # ~1 minute
-
-gen3 tfapply # ~10 minutes
-
-cp -r aced-commons-production_output/ ~/backups/
-
-Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
-
-# Outputs:
-# aws_region = us-west-2
-# data-bucket_name = aced-commons-production-data-bucket
-# fence-bot_user_id = FOO
-# fence-bot_user_secret = FOO
-```
-
-## Install Kubernetes Cluster on AWS
-
-```sh
-gen3 workon staging aced-commons-production_eks
+# cat ~/.aws/config
+# [default]
+# output = json
+# region = us-west-2
+# credential_source = Ec2InstanceMetadata
+# 
+# [profile staging]
+# output = json
+# region = us-west-2
+# role_arn = arn:aws:iam::119548034047:role/ACC-8940
+# source_profile=staging
+gen3 workon staging aced-commons-development
 
 gen3 cd
 
-mv config.tfvars config.tfvars.bak
+# Error: Error applying plan:
+# 1 error occurred:
+#         * module.cdis_vpc.module.data-bucket.aws_s3_bucket_public_access_block.data_bucket_logs_privacy: 1 error occurred:
+#         * aws_s3_bucket_public_access_block.data_bucket_logs_privacy: error creating public access block policy for S3 bucket (aced-commons-development-data-bucket-logs):
+#           OperationAborted: A conflicting conditional operation is currently in progress against this resource. Please try again.
+#         status code: 409, request id: 1ECNA18CDJ3X66B7, host id: NoZFqs6p83VksCvABLLepDbWHxPZql6itf96D7pfp1fPExm4SbPehk9AByMqjc/o73gaPmyv7Ys=
+gen3 tfplan
+gen3 tfapply
 
-cp ../aced-commons-staging_eks/config.tfvars .
-
-vim config.tfvars
-
-diff config.tfvars ../aced-commons-staging_eks/config.tfvars
+# To delete resources on AWS
+# gen3 tfplan --destroy
 ```
-
-```diff
-5c5
-< vpc_name      = "aced-commons-production"
----
-> vpc_name      = "aced-commons-staging"
-7,8c7,8
-< ec2_keyname   ="aced-commons-production_automation_dev"
-< users_policy  = "aced-commons-production"
----
-> ec2_keyname   ="aced-commons-staging_automation_dev"
-> users_policy  = "aced-commons-staging"
-```
-
-```sh
-gen3 tfplan # ~1 minute
-
-gen3 tfapply # ~10 minutes
-```
-
-## EKS Node Group
-
-https://us-west-2.console.aws.amazon.com/eks/home?region=us-west-2#/clusters/aced-commons-production
-
-Compute > Add node group
-
-![Creating a node group for AWS EKS](./images/aws-eks-node-group.png)
-
-### Node group configuration
-
-Name
-`aced-commons-production-nodes`
-
-Node IAM role
-`eks_aced-commons-production_workers_role`
-
-### Node group compute configuration
-
-AMI type
-`Amazon Linux 2 (AL2_x86_64)`
-
-Capacity type
-`On-Demand`
-
-Instance types
-`t3.xlarge`
-
-Disk size
-`20 GB`
-
-### Node group scaling configuration
-
-Desired size
-`2`
-
-Minimum size
-`2`
-
-Maximum size
-`4`
-
-### Node group update configuration
-
-Maximum unavailable
-`1`
-
-### Node group network configuration
-
-Subnets
-`eks_public_0`
-`eks_public_1`
-`eks_public_2`
-
-Configure remote access to nodes
-`Enable`
-
-EC2 Key Pair
-`aced-commons-production_automation_dev`
-
-Allow remote access from
-`All`
-
-## ETL Node Group
-
-Create a new node group with 100GB of storage for use by the ETL pod and update the `nodeSelector` value in the ETL yaml file:
-
-```yaml
-nodeSelector:
-  eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group
-```
-
-The ETL pod should not be ready for deployment!
-
-Note: if the node or nodes in a given node group do not have egress or network access then the `kubectl coredon` command can be used to disable the node group in order to prevent scheduling nodes to that group.
 
 ## RDS (Aurora)
-
-https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#
-
-![Creating a database for AWS RDS](./images/aws-rds.png)
 
 ### Engine options
 
 `Show versions that support Serverless v2`
-
-Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
-
-### Templates
-Production
-
-### Settings
-
-DB cluster identifier
-aced-commons-development-aurora
-
-Manage master credentials in AWS Secrets Manager
-
-### Settings
-
-DB cluster identifier
-aced-commons-development-aurora
-
-Manage master credentials in AWS Secrets Manager
+Aurora MySQL 3.02.0 (compatible with MySQL 8.0.23)
 
 ### Instance configuration
 
@@ -410,6 +322,13 @@ Minimum ACUs
 
 Maximum ACUs
 `10 (20 GiB)`
+
+### Settings
+
+DB cluster identifier
+aced-commons-development-aurora
+
+Manage master credentials in AWS Secrets Manager
 
 ### Availability & durability
 
@@ -434,7 +353,7 @@ Existing VPC security groups
 
 ### Database authentication
 
-IAM database authentication
+Password and IAM database authentication
 
 ### Additional Configuration
 
@@ -443,10 +362,6 @@ Backup retention period
 
 Target Backtrack window
 `48 hours`
-
-Log exports
-Select the log types to publish to Amazon CloudWatch Logs
-`PostgreSQL log`
 
 Log exports
 - `Audit log`
@@ -481,14 +396,11 @@ global:
     "AdvancedSecurityOptions": {
         "MasterUserOptions": {
             "MasterUserName": "<MASTER USERNAME>",
-            // echo "$(openssl rand -base64 12)_Ek1$" >> es_domain.json
             "MasterUserPassword": "<MASTER USER PASSWORD>"
         }
     },
     "VPCOptions": {
-      // int_services
       "SubnetIds": ["subnet-foo"],
-      // aced-commons-development-local-sec-group
       "SecurityGroupIds": ["sg-foo"] 
     }
 }
@@ -513,72 +425,23 @@ aws-es-proxy:
     awsSecretAccessKey: "<SECRET ACCESS KEY>"
 ```
 
-## S3 Buckets
-
-- Cloud Automation automatically creates four buckets:
-  - aced-commons-staging-data-bucket	
-  - aced-commons-staging-data-bucket-logs	
-  - kube-aced-commons-staging-gen3	
-  - logs-aced-commons-staging-gen3
-
-This buckets serve as a template for our storage buckets but won't actually be used to store data. Instead we'll manually create five buckets that represent the data storage for each institution:
-  - aced-production-data-bucket
-  - aced-production-manchester-data-bucket
-  - aced-production-ohsu-data-bucket
-  - aced-production-stanford-data-bucket
-  - aced-production-ucl-data-bucket
-
 ## Certificate
+  - Validation
 
-Creating a [certificate in AWS](https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/certificates/list) requires DNS validation through the domain registrar (e.g. Google Domains). For our purposes we'll create a certificate that has the following domain names:
-- `aced-idp.org`
-- `*.aced-idp.org`
+## Ingress (Load Balancer)
 
-## Install Load Balancer Controller
-
-https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html
+## RDS/PostgreSQL
 
 ```sh
-curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.7/docs/install/iam_policy.json
-
-aws iam create-policy \
-    --policy-name aced-commons-production-AWSLoadBalancerControllerIAMPolicy  \
-    --policy-document file://iam_policy.json
-
-eksctl create iamserviceaccount \
-  --cluster=aced-commons-production \
-  --namespace=kube-system \
-  --name=aws-load-balancer-controller \
-  --role-name aced-commons-production-AmazonEKSLoadBalancerControllerRole \
-  --attach-policy-arn=arn:aws:iam::119548034047:policy/aced-commons-production-AWSLoadBalancerControllerIAMPolicy \
-  --approve --override-existing-serviceaccounts
-
-helm repo add eks https://aws.github.io/eks-charts
-
-helm repo update eks
-
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
-  --set clusterName=aced-commons-production \
-  --set serviceAccount.create=false \
-  --set serviceAccount.name=aws-load-balancer-controller
-
-kubectl get deployment -n kube-system aws-load-balancer-controller
-# NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-# aws-load-balancer-controller   2/2     2            2           84s
+root@etl:/# env | grep PG
+PGPORT=5432
+PGPASSWORD=foo
+GPG_KEY=baz
+PGUSER=sheepdog_local
+PGDB=sheepdog_local
+PGHOST=foo-aurora.rds.amazonaws.com
 ```
 
-## Deploy with Helm
-
-```sh
-# https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html
-aws eks update-kubeconfig --region us-west-2 --name aced-commons-production
-
-kubectl config get-contexts
-
-helm upgrade --install local ./helm/gen3 -f Secrets/values.yaml -f Secrets/user.yaml -f Secrets/fence-config.yaml
-
-kc get pods
-
-kc get ingress
+```
+psql -U postgres -W
 ```
