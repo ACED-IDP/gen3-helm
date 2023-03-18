@@ -108,8 +108,8 @@ sysctl vm.max_map_count
 > Login to browser first, download credentials.json to Secrets/credentials.json
 
 ```sh
-kubectl delete configmap gen3-credentials
-kubectl create configmap gen3-credentials --from-file Secrets
+kubectl delete configmap credentials
+kubectl create configmap credentials --from-file Secrets
 kubectl delete pod etl
 kubectl apply -f etl.yaml
 sleep 10
@@ -379,13 +379,8 @@ https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#
 
 ### Engine options
 
-Aurora (PostgreSQL-Compatible)
-
 `Show versions that support Serverless v2`
-Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
-
-### Templates
-Production
+Aurora MySQL 3.02.0 (compatible with MySQL 8.0.23)
 
 ### Settings
 
