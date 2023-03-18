@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 global:
+  
   # -- (map) AWS configuration
   aws:
     enabled: false
@@ -384,4 +385,4 @@ postgresql:
   primary:
     persistence:
       # -- (bool) Option to persist the dbs data.
-      enabled: false
+      enabled: true
