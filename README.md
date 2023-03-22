@@ -14,7 +14,7 @@ To see documentation around setting up gen3 developer environments see [gen3_dev
 ```
 helm repo add gen3 https://helm.gen3.org
 helm repo update
-helm upgrade --install gen3 gen3/gen3 -f ./values.yaml 
+helm upgrade --install gen3 gen3/gen3 -f values.yaml -f fence-config.yaml -f user.yaml --set manifestservice.enabled=false
 ```
 
 Use the following as a template for your `values.yaml` file for a minimum deployment of gen3 using these helm charts.
