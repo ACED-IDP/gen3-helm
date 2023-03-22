@@ -4,6 +4,11 @@ metadata:
   name: etl
 
 spec:
+  hostAliases:
+    - ip: "10.42.0.49"
+      hostnames:
+      - "aced-training.compbio.ohsu.edu"
+  
   # Add the ConfigMap as a volume to the Pod
   volumes:
     # `name` here must match the name
@@ -17,7 +22,7 @@ spec:
 
   containers:
     - name: container-configmap
-      image: ubuntu
+      image: python:3.9.16-slim-buster
       # Mount the volume that contains the configuration data 
       # into your container filesystem
       volumeMounts:
@@ -26,24 +31,29 @@ spec:
 
         # Fence config
         - name: credentials-configmap-volume
-          mountPath: /fence/fence.yaml
+          mountPath: /creds/fence.yaml
           subPath: fence-config.yaml
+
+        # Gen3 Credentials file
+        - name: credentials-configmap-volume
+          mountPath: /creds/credentials.json
+          subPath: credentials.json
 
         # User yaml
         - name: credentials-configmap-volume
-          mountPath: /user-yaml/user.yaml
+          mountPath: /creds/user.yaml
           subPath: user.yaml
 
         # Sheepdog credentials
         - name: credentials-configmap-volume
-          mountPath: /sheepdog/sheepdog-credentials.yaml
+          mountPath: /creds/sheepdog-credentials.yaml
           subPath: sheepdog_creds.json
 
       command: ["/bin/bash" ]
       args:
         - "-c"
         - |
-          apt-get -y update; apt-get -y install curl
+          apt-get -y update; apt-get -y install curl iputils-ping
           curl https://aced-public.s3.us-west-2.amazonaws.com/aced.json > aced.json;
           while true; do sleep 30; done;
       

@@ -50,3 +50,11 @@ git checkout feature/etl
 Start deployment — helm upgrade --install local gen3/gen3 -f values.yaml -f user.yaml -f fence-config.yaml
 helm upgrade --install local gen3/gen3 -f values.yaml --set manifestservice.enabled=false
 ```
+
+## Helpful Command
+
+### Listing Secrets
+
+```sh
+kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq
+```
