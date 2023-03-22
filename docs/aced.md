@@ -144,6 +144,7 @@ helm repo add minio https://operator.min.io/
 helm install --namespace minio-operator --create-namespace minio-operator minio/operator
 ```
 
+<<<<<<< HEAD
 Then create the Minio k8s secret:
 
 ```sh
