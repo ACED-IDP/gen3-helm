@@ -1,8 +1,8 @@
-# Enabling internal HTTPS for revproxy
+# Enabling internal HTTPS connections with revproxy
 
 ## 1) Copy SSL certs
 
-For this example we are using the `service.crt` and `service.key` files to the `ssl` directory in the `revproxy` helm chart --
+For this example we are using the `service.crt` and `service.key` files for https://aced-training.compbio.ohsu.edu and copying them to the `ssl` directory in the `revproxy` helm chart --
 
 ```sh
 cp service.* helm/revproxy/ssl
