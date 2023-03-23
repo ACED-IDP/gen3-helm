@@ -20,6 +20,12 @@ spec:
     - name: fence-creds
       secret:
         secretName: fence-dbcreds
+    - name: useryaml
+      # Populate the volume with config map data
+      configMap:
+        # `name` here must match the name 
+        # specified in the ConfigMap's YAML 
+        name: useryaml
 
   containers:
     - name: container-configmap
@@ -44,9 +50,9 @@ spec:
           mountPath: /creds/sheepdog-creds
 
         # User yaml
-        - name: creds-configmap-volume
+        - name: useryaml
           mountPath: /creds/user.yaml
-          subPath: user.yaml
+          subPath: useryaml
 
       command: ["/bin/bash" ]
       args:
