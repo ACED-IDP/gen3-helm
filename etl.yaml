@@ -4,52 +4,35 @@ metadata:
   name: etl
 
 spec:
-  # Add the ConfigMap as a volume to the Pod
   volumes:
-    # `name` here must match the name
-    # specified in the volume mount
+    # To create the crredentials config run --
+    # kubectl create configmap credentials --from-file credentials-templates
     - name: creds-configmap-volume
-      # Populate the volume with config map data
       configMap:
-        # `name` here must match the name 
-        # specified in the ConfigMap's YAML 
         name: credentials
+
     - name: sheepdog-creds
       secret:
         secretName: sheepdog-dbcreds
-    - name: fence-creds
-      secret:
-        secretName: fence-dbcreds
+
     - name: useryaml
-      # Populate the volume with config map data
       configMap:
-        # `name` here must match the name 
-        # specified in the ConfigMap's YAML 
         name: useryaml
 
   containers:
     - name: container-configmap
       image: python:3.9.16-slim-buster
-      # Mount the volume that contains the configuration data 
-      # into your container filesystem
       volumeMounts:
-        # `name` here must match the name
-        # from the volumes section of this pod
-
-        # Gen3 creds file
+        # Gen3 credentials file
         - name: creds-configmap-volume
           mountPath: /creds/credentials.json
           subPath: credentials.json
 
-        # Fence config
-        - name: fence-creds
-          mountPath: /creds/fence-creds
-
-        # Sheepdog creds
+        # Sheepdog creds, secrets defined in helm/sheepdog/templates/deployment.yaml
         - name: sheepdog-creds
           mountPath: /creds/sheepdog-creds
 
-        # User yaml
+        # User yaml, configmap defined in helm/fence/templates/useryaml-job.yaml
         - name: useryaml
           mountPath: /creds/user.yaml
           subPath: useryaml
@@ -58,9 +41,16 @@ spec:
       args:
         - "-c"
         - |
+          # Add the revproxy-service IP address to the pod's hosts file
           echo $REVPROXY_SERVICE_SERVICE_HOST aced-training.compbio.ohsu.edu >> /etc/hosts
-          apt-get -y update; apt-get -y install curl iputils-ping gcc
+          
+          # Fetch the schema
           curl https://aced-public.s3.us-west-2.amazonaws.com/aced.json > aced.json;
+
+          # Install network and development tools. gcc is necessary for installing the gen3 SDK.
+          apt-get -y update; apt-get -y install curl iputils-ping gcc
           pip install gen3
+
+          # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
       

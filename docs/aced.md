@@ -91,12 +91,11 @@ cat service.key | base64 > service-base64.key
 KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
 ```
 
-
 ### Alternate Method
 
 ```sh
 kubectl delete secrets gen3-certs
-kubectl apply -f secret.yaml
+kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
 ```
 
 ## Add ETL Pod
