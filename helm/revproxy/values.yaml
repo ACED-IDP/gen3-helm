@@ -134,11 +134,6 @@ service:
       port: 80
       targetPort: 80
       name: http
-    - protocol: TCP
-      port: 443
-      targetPort: 443
-      name: https
-
 
 # -- (map) Configuration for revproxy ingress.
 ingress:
