@@ -2,6 +2,10 @@ global:
   hostname: aced-training.compbio.ohsu.edu
   dictionaryUrl: https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
 
+guppy:
+  # -- (bool) Whether to deploy the guppy subchart.
+  enabled: true
+
 revproxy:
   service:
     type: NodePort
