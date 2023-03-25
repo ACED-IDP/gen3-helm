@@ -110,6 +110,76 @@ kubectl describe pod etl
 kubectl exec --stdin --tty etl -- /bin/bash
 ```
 
+## Add Minio Helm Chart
+
+Adapted from the [Minio Operator documentation](https://github.com/minio/operator/tree/master/helm/operator).
+
+First add the Minio Helm repo and install the chart into the minio-operator namespace:
+
+```sh
+helm repo add minio https://operator.min.io/
+
+helm install --namespace minio-operator --create-namespace minio-operator minio/operator
+```
+
+Then create the Minio k8s secret:
+
+```sh
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: console-sa-secret
+  namespace: minio-operator
+  annotations:
+    kubernetes.io/service-account.name: console-sa
+type: kubernetes.io/service-account-token
+EOF
+```
+
+Get the JWT token For logging into the console:
+
+
+```sh
+kubectl -n minio-operator  get secret console-sa-secret -o jsonpath="{.data.token}" | base64 --decode
+```
+
+Then start the minio-operator which will open the console on port 9090 of localhost:
+
+```sh
+kubectl --namespace minio-operator port-forward svc/console 9090:9090
+echo "Visit the Operator Console at http://127.0.0.1:9090"
+```
+
+Then log in to the Minio console with the JWT token from the previous step.
+
+If the console is up and able to be logged into the we can move on to creating four node Minio tenant/cluster:
+
+```sh
+helm install --namespace tenant-ns --create-namespace tenant minio/tenant
+```
+
+Note: if `helm` or `kubectl` complain about not finding a release you can specify the namespace to target the resource of interes (e.g. `tenant` in the `tenant-ns` namespace):
+
+```sh
+kubectl describe tenant
+# No resources found in default namespace.
+
+kubectl describe tenant --namespace tenant-ns
+# ...
+# Events:
+#   Type    Reason       Age   From            Message
+#   ----    ------       ----  ----            -------
+#   Normal  CSRCreated   12m   minio-operator  MinIO CSR Created
+#   Normal  SvcCreated   11m   minio-operator  MinIO Service Created
+#   Normal  SvcCreated   11m   minio-operator  Console Service Created
+
+helm uninstall tenant
+# Error: uninstall: Release not loaded: tenant: release: not found
+
+helm uninstall tenant --namespace tenant-ns
+# release "tenant" uninstalled
+```
 
 ## Helpful Command
 
