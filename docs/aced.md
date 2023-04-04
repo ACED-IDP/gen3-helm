@@ -144,7 +144,6 @@ helm repo add minio https://operator.min.io/
 helm install --namespace minio-operator --create-namespace minio-operator minio/operator
 ```
 
-<<<<<<< HEAD
 Then create the Minio k8s secret:
 
 ```sh
@@ -226,3 +225,17 @@ The SSL certificate and key file are automatically handled by the `Secrets/TLS/g
 kubectl delete secrets gen3-certs
 kubectl create secret tls gen3-certs --cert=Secrets/TLS/service.crt --key=Secrets/TLS/service.key
 ```
+### TODO - Create env varaiables instead of files in etl.yaml 
+
+```sh
+
+   export PGDB=`cat /creds/sheepdog-creds/database`
+   export PGPASSWORD=`cat /creds/sheepdog-creds/password`
+   export PGUSER=`cat /creds/sheepdog-creds/username`
+   export PGHOST=`cat /creds/sheepdog-creds/host`
+   export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
+   export PGPORT=`cat /creds/sheepdog-creds/port`
+
+   echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY  
+```
+
