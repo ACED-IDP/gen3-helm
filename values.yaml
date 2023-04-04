@@ -6,6 +6,18 @@ guppy:
   # -- (bool) Whether to deploy the guppy subchart.
   enabled: true
 
+# Enable persistence of PostgreSQL databases across deployments
+# This allows Rancher Desktop to restart while preserving the database data 
+postgresql:
+  primary:
+    persistence:
+      enabled: true
+      
+elasticsearch:
+  volumes:
+  - name: nginx
+    size: "2Gi"
+
 revproxy:
   service:
     type: NodePort

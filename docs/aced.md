@@ -98,6 +98,28 @@ kubectl delete secrets gen3-certs
 kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
 ```
 
+## Increase Elasticsearch Memory
+
+As referenced in the [Gen3 developer docs](gen3_developer_environments.md#elasticsearch-error), Elasticsearch may output an error regarding too low of `max virtual memory` --
+
+```
+ERROR: [1] bootstrap checks failed
+[1]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+```
+
+To fix this we'll open a shell into the Rancher Desktop node and update the required memory fields -- 
+
+```sh
+rdctl shell
+
+sudo sysctl -w vm.max_map_count=262144
+sudo sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf'
+
+sysctl vm.max_map_count
+# vm.max_map_count = 262144
+```
+
+
 ## Add ETL Pod
 
 ```sh
@@ -108,6 +130,23 @@ kubectl apply -f etl.yaml
 sleep 10
 kubectl describe pod etl
 kubectl exec --stdin --tty etl -- /bin/bash
+```
+
+## Add Minio k8s Pod
+
+```sh
+kubectl apply -f minio-dev.yaml
+
+# namespace/minio-dev created
+# pod/minio created
+
+kubectl get pods -n minio-dev
+
+# NAME    READY   STATUS    RESTARTS   AGE
+# minio   1/1     Running   0          77s
+
+kubectl describe pod/minio -n minio-dev
+kubectl logs pod/minio -n minio-dev
 ```
 
 ## Add Minio Helm Chart
