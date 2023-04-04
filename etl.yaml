@@ -19,6 +19,10 @@ spec:
       configMap:
         name: useryaml
 
+    - name: host-mount
+      hostPath:
+        path: /Users/walsbr/aced/data_model/studies        
+
   containers:
     - name: container-configmap
       image: python:3.9.16-slim-buster
@@ -37,6 +41,10 @@ spec:
           mountPath: /creds/user.yaml
           subPath: useryaml
 
+        # studies
+        - name: host-mount
+          mountPath: /studies
+
       command: ["/bin/bash" ]
       args:
         - "-c"
@@ -49,7 +57,32 @@ spec:
 
           # Install network and development tools. gcc is necessary for installing the gen3 SDK.
           apt-get -y update; apt-get -y install curl iputils-ping gcc
-          pip install gen3
+
+          # move the credentials file to a well known spot
+          # https://github.com/uc-cdis/gen3sdk-python/blob/master/docs/reference/sdkClasses.md#gen3auth
+          mkdir ~/.gen3
+          cp /creds/credentials.json ~/.gen3/credentials.json
+
+          # Install dependencies
+          apt install git libpq-dev python3-dev build-essential vim unzip  -y
+
+          # Until we fix in helm env, setup well known postgres env variables
+          cat  << EOF >> ~/.bashrc
+          export PGDB=`cat /creds/sheepdog-creds/database`
+          export PGPASSWORD=`cat /creds/sheepdog-creds/password`
+          export PGUSER=`cat /creds/sheepdog-creds/username`
+          export PGHOST=`cat /creds/sheepdog-creds/host`
+          export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
+          export PGPORT=`cat /creds/sheepdog-creds/port`
+          EOF
+
+          git clone https://github.com/ACED-IDP/data_model
+          cd data_model
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          # mac silicon, build from scratch, avoids Postgresql SCRAM authentication problem
+          pip install  psycopg2
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
