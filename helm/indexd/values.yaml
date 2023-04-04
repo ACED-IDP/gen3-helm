@@ -50,12 +50,18 @@ global:
   publicDataSets: true
   # -- (string) Access level for tiers. acceptable values for `tier_access_level` are: `libre`, `regular` and `private`. If omitted, by default common will be treated as `private`
   tierAccessLevel: libre
+  # -- (int) Only relevant if tireAccessLevel is set to "regular". Summary charts below this limit will not appear for aggregated data.
+  tierAccessLimit: 1000
   # -- (bool) Whether network policies are enabled.
   netPolicy: true
   # -- (int) Number of dispatcher jobs.
   dispatcherJobNum: 10
   # -- (bool) Whether Datadog is enabled.
   ddEnabled: false
+  # -- (bool) If the service will be deployed with a Pod Disruption Budget. Note- you need to have more than 2 replicas for the pdb to be deployed.
+  pdb: false
+  # -- (int) The minimum amount of pods that are available at all times if the PDB is deployed.
+  minAvialable: 1
 
 # -- (map) Postgres database configuration. If db does not exist in postgres cluster and dbCreate is set ot true then these databases will be created for you
 postgres:
@@ -94,7 +100,7 @@ image:
   # -- (string) When to pull the image.
   pullPolicy: IfNotPresent
   # -- (string) Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "jawadqur-patch-1"
 
 # -- (list) Docker image pull secrets.
 imagePullSecrets: []
@@ -181,9 +187,6 @@ volumes:
 - name: config-volume
   secret:
     secretName: "indexd-settings"
-- name: creds-volume
-  secret:
-    secretName: "indexd-creds"
 
 # -- (list) Volumes to mount to the container.
 volumeMounts:
@@ -194,19 +197,24 @@ volumeMounts:
 
 # -- (list) Environment variables to pass to the container
 env:
+  - name: "ARBORIST"
+    value: "true"
   - name: "GEN3_DEBUG"
     value: "False"
 
 # -- (map) Values for indexd secret.
 secrets:
   userdb:
-    fence: test
-    gdcapi:
-    gateway:
+    fence:
+    sheepdog:
+    # gateway:
 
 # -- (map) Values for overriding uwsgi settings
 uwsgi:
   listen: 1024
+
+# -- (string) default prefix for indexd
+defaultPrefix: "PREFIX/"
 
 # Values to determine the labels that are used for the deployment, pod, etc.
 # -- (string) Valid options are "production" or "dev". If invalid option is set- the value will default to "dev".
