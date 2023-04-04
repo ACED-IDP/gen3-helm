@@ -31,6 +31,24 @@ revproxy:
         targetPort: 443
         name: https
 
+# -- (map) Configurations for guppy chart.
+guppy:
+  # -- (bool) Whether to deploy the guppy subchart.
+  enabled: true
+  indices:
+  - index: observation
+    type: observation
+  - index: file
+    type: file
+  - index: patient
+    type: patient
+  # -- (string) The Elasticsearch configuration index
+  configIndex:
+  - observation_array-config
+  - file_array-config
+  - patient_array-config
+
+
 portal:
   image:
     # Default data-portal image, requires webpack build
