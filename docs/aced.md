@@ -32,12 +32,12 @@ helm repo update
 * gitops.json - Controls windmill UI configuration - see values.yaml
   Gitops values are encoded as a json string under portal.gitops.json
   ```
-portal:
-...  
-# -- (map) GitOps configuration for portal
-  gitops:
-    # -- (string) multiline string - gitops.json
-    json: |
+  portal:
+  ...  
+  # -- (map) GitOps configuration for portal
+    gitops:
+      # -- (string) multiline string - gitops.json
+      json: |
 
   ```
 
@@ -58,15 +58,16 @@ portal:
 * certs
     *See [OneDrive](https://ohsuitg-my.sharepoint.com/:f:/r/personal/walsbr_ohsu_edu/Documents/compbio-tls?csf=1&web=1&e=7oFdxd)*
 
-    Copy the keys into the revproxy volume.
+    Copy the keys into the `gen3-certs.yaml` file.
 
     ```
-    cp service.* helm/revproxy/ssl
+    cp Secrets/TLS/gen3-certs-example.yaml Secrets/TLS/gen3-certs.yaml
+    cat service.* >> Secrets/TLS/gen3-certs.yaml
+    # Then match the key-key value formats in the file
     ```
 
 
 ## Deploy
-
 
 ```sh
 # Clone gen3-helm 
@@ -77,25 +78,7 @@ git checkout feature/etl
 helm dependency update helm/gen3
 
 # Start deployment 
-helm upgrade --install local ./helm/gen3 -f values.yaml -f fence-config.yaml -f user.yaml --set manifestservice.enabled=false
-
-```
-
-## Add SSL Certs to ingress
-
-Replace the tls.crt and tls.key with the contents of  service-base64.crt, service-base64.key.
-
-```sh
-cat service.crt | base64 > service-base64.crt
-cat service.key | base64 > service-base64.key
-KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
-```
-
-### Alternate Method
-
-```sh
-kubectl delete secrets gen3-certs
-kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
+helm upgrade --install local ./helm/gen3 -f values.yaml -f user.yaml -f fence-config.yaml -f Secrets/TLS/gen3-certs.yaml
 ```
 
 ## Increase Elasticsearch Memory
@@ -228,8 +211,17 @@ helm uninstall tenant --namespace tenant-ns
 kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq
 ```
 
-#### Counting pods neither Running or Completed
+### Counting pods neither Running or Completed
 
 ```sh
 kubectl get pods --all-namespaces | grep -v Running | grep -v Completed  | grep -v NAMES | wc -l
+```
+
+### Manually change SSL certificate
+
+The SSL certificate and key file are automatically handled by the `Secrets/TLS/gen3-certs.yaml` and invoked in the `helm upgrade` command. However if you wish change the certificate or key for any reason simply delete the `gen3-certs` secret and recreate it with the `crt` and `key` file you wish to use:
+
+```sh
+kubectl delete secrets gen3-certs
+kubectl create secret tls gen3-certs --cert=Secrets/TLS/service.crt --key=Secrets/TLS/service.key
 ```
