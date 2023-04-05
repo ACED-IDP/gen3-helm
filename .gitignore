@@ -7,3 +7,6 @@ service.*
 *.key
 *.csr
 gen3-certs.yaml
+credentials-templates/
+fence-config.yaml
+user.yaml
