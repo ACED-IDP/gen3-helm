@@ -6,3 +6,4 @@ service.*
 *.crt
 *.key
 *.csr
+gen3-certs.yaml
