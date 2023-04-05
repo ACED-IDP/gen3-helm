@@ -74,11 +74,32 @@ helm repo update
 git clone https://github.com/ACED-IDP/gen3-helm
 git checkout feature/etl
 
+# uninstall previous version
+helm uninstall local
 # update dependencies
 helm dependency update helm/gen3
 
 # Start deployment 
 helm upgrade --install local ./helm/gen3 -f values.yaml -f user.yaml -f fence-config.yaml -f Secrets/TLS/gen3-certs.yaml
+
+```
+
+## Add SSL Certs to ingress
+
+Replace the tls.crt and tls.key with the contents of  service-base64.crt, service-base64.key.
+
+```sh
+cat service.crt | base64 > service-base64.crt
+cat service.key | base64 > service-base64.key
+KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
+```
+
+### Alternate Method
+
+```sh
+kubectl delete secrets gen3-certs
+kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
+>>>>>>> 9170635 (Minor changes)
 ```
 
 ## Increase Elasticsearch Memory
@@ -104,6 +125,8 @@ sysctl vm.max_map_count
 
 
 ## Add ETL Pod
+
+> Login to browser first, download credentials.json to credentials-templates/credentials.json
 
 ```sh
 kubectl delete configmap credentials
@@ -229,13 +252,13 @@ kubectl create secret tls gen3-certs --cert=Secrets/TLS/service.crt --key=Secret
 
 ```sh
 
-   export PGDB=`cat /creds/sheepdog-creds/database`
-   export PGPASSWORD=`cat /creds/sheepdog-creds/password`
-   export PGUSER=`cat /creds/sheepdog-creds/username`
-   export PGHOST=`cat /creds/sheepdog-creds/host`
-   export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
-   export PGPORT=`cat /creds/sheepdog-creds/port`
+export PGDB=`cat /creds/sheepdog-creds/database`
+export PGPASSWORD=`cat /creds/sheepdog-creds/password`
+export PGUSER=`cat /creds/sheepdog-creds/username`
+export PGHOST=`cat /creds/sheepdog-creds/host`
+export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
+export PGPORT=`cat /creds/sheepdog-creds/port`
 
-   echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY  
+echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY  
 ```
 
