@@ -11,7 +11,7 @@ guppy:
 postgresql:
   primary:
     persistence:
-      enabled: true
+      enabled: false
       
 elasticsearch:
   volumes:
@@ -43,10 +43,7 @@ guppy:
   - index: patient
     type: patient
   # -- (string) The Elasticsearch configuration index
-  configIndex:
-  - observation_array-config
-  - file_array-config
-  - patient_array-config
+  configIndex: gen3.aced.io_array-config
 
 
 portal:
