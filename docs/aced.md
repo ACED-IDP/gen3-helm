@@ -99,7 +99,7 @@ KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
 ```sh
 kubectl delete secrets gen3-certs
 kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
->>>>>>> 9170635 (Minor changes)
+
 ```
 
 ## Increase Elasticsearch Memory
@@ -126,15 +126,15 @@ sysctl vm.max_map_count
 
 ## Add ETL Pod
 
-> Login to browser first, download credentials.json to credentials-templates/credentials.json
+> Login to browser first, download credentials.json to Secrets/credentials.json
 
 ```sh
 kubectl delete configmap credentials
-kubectl create configmap credentials --from-file credentials-templates
+kubectl create configmap credentials --from-file Secrets
 kubectl delete pod etl
 kubectl apply -f etl.yaml
 sleep 10
-kubectl describe pod etl
+# kubectl describe pod etl
 kubectl exec --stdin --tty etl -- /bin/bash
 ```
 
