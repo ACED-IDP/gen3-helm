@@ -144,7 +144,7 @@ kubectl exec --stdin --tty etl -- /bin/bash
 
 ### Current staging setup
 
-* OHSU - minio setup documented elsewhere (TODO - create onedrive document and link here)
+* OHSU - minio setup documented [here](https://ohsuitg-my.sharepoint.com/:t:/r/personal/walsbr_ohsu_edu/Documents/aced-1-minio.md?csf=1&web=1&e=iL5PmW)
 
 * ucl, manchester, stanford
 
