@@ -99,7 +99,7 @@ KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
 ```sh
 kubectl delete secrets gen3-certs
 kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
->>>>>>> 9170635 (Minor changes)
+
 ```
 
 ## Increase Elasticsearch Memory
@@ -126,105 +126,42 @@ sysctl vm.max_map_count
 
 ## Add ETL Pod
 
-> Login to browser first, download credentials.json to credentials-templates/credentials.json
+> Login to browser first, download credentials.json to Secrets/credentials.json
 
 ```sh
 kubectl delete configmap credentials
-kubectl create configmap credentials --from-file credentials-templates
+kubectl create configmap credentials --from-file Secrets
 kubectl delete pod etl
 kubectl apply -f etl.yaml
 sleep 10
-kubectl describe pod etl
+# kubectl describe pod etl
 kubectl exec --stdin --tty etl -- /bin/bash
 ```
 
-## Add Minio k8s Pod
+## Bucket setup
 
-```sh
-kubectl apply -f minio-dev.yaml
+> Unlike our compose services environment, where docker-compose was responsible for Gen3 and S3 (minio) configurations,  our k8s environment only has responsibility for Gen3 services and dependencies.   S3, whether AWS or Minio based is handled externally.
 
-# namespace/minio-dev created
-# pod/minio created
+### Current staging setup
 
-kubectl get pods -n minio-dev
+* OHSU - minio setup documented [here](https://ohsuitg-my.sharepoint.com/:t:/r/personal/walsbr_ohsu_edu/Documents/aced-1-minio.md?csf=1&web=1&e=iL5PmW)
 
-# NAME    READY   STATUS    RESTARTS   AGE
-# minio   1/1     Running   0          77s
+* ucl, manchester, stanford
 
-kubectl describe pod/minio -n minio-dev
-kubectl logs pod/minio -n minio-dev
-```
+  * create buckets
+  ![image](https://user-images.githubusercontent.com/47808/230643703-358ccacc-e974-4140-b0e6-7f080b90d484.png)
 
-## Add Minio Helm Chart
+  * grant permissions to a AWS IAM user representing fence.
+  ![image](https://user-images.githubusercontent.com/47808/230643891-df980b9c-eddf-45c4-93ed-7dff2c27cb34.png)
 
-Adapted from the [Minio Operator documentation](https://github.com/minio/operator/tree/master/helm/operator).
-
-First add the Minio Helm repo and install the chart into the minio-operator namespace:
-
-```sh
-helm repo add minio https://operator.min.io/
-
-helm install --namespace minio-operator --create-namespace minio-operator minio/operator
-```
-
-Then create the Minio k8s secret:
-
-```sh
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: console-sa-secret
-  namespace: minio-operator
-  annotations:
-    kubernetes.io/service-account.name: console-sa
-type: kubernetes.io/service-account-token
-EOF
-```
-
-Get the JWT token For logging into the console:
+  * see fence-config.yaml:
+     * `AWS_CREDENTIALS: {}`  aws_access_key_id, aws_secret_access_key
+     * `S3_BUCKETS: {}`  bucket_name, cred, region
 
 
-```sh
-kubectl -n minio-operator  get secret console-sa-secret -o jsonpath="{.data.token}" | base64 --decode
-```
 
-Then start the minio-operator which will open the console on port 9090 of localhost:
 
-```sh
-kubectl --namespace minio-operator port-forward svc/console 9090:9090
-echo "Visit the Operator Console at http://127.0.0.1:9090"
-```
 
-Then log in to the Minio console with the JWT token from the previous step.
-
-If the console is up and able to be logged into the we can move on to creating four node Minio tenant/cluster:
-
-```sh
-helm install --namespace tenant-ns --create-namespace tenant minio/tenant
-```
-
-Note: if `helm` or `kubectl` complain about not finding a release you can specify the namespace to target the resource of interes (e.g. `tenant` in the `tenant-ns` namespace):
-
-```sh
-kubectl describe tenant
-# No resources found in default namespace.
-
-kubectl describe tenant --namespace tenant-ns
-# ...
-# Events:
-#   Type    Reason       Age   From            Message
-#   ----    ------       ----  ----            -------
-#   Normal  CSRCreated   12m   minio-operator  MinIO CSR Created
-#   Normal  SvcCreated   11m   minio-operator  MinIO Service Created
-#   Normal  SvcCreated   11m   minio-operator  Console Service Created
-
-helm uninstall tenant
-# Error: uninstall: Release not loaded: tenant: release: not found
-
-helm uninstall tenant --namespace tenant-ns
-# release "tenant" uninstalled
-```
 
 ## Helpful Command
 
