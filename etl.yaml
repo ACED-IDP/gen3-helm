@@ -19,9 +19,13 @@ spec:
       configMap:
         name: useryaml
 
-    - name: host-mount
+    - name: studies-mount
       hostPath:
-        path: /Users/walsbr/aced/data_model/studies        
+        path: /Users/walsbr/aced/data_model/studies
+
+    - name: output-mount
+      hostPath:
+        path: /Users/walsbr/aced/data_model/output
 
   containers:
     - name: container-configmap
@@ -41,9 +45,14 @@ spec:
           mountPath: /creds/user.yaml
           subPath: useryaml
 
-        # studies
-        - name: host-mount
+        # studies metadata
+        - name: studies-mount
           mountPath: /studies
+
+        # studies files
+        - name: output-mount
+          mountPath: /output
+
 
       command: ["/bin/bash" ]
       args:
@@ -83,6 +92,12 @@ spec:
           pip install -r requirements.txt
           # mac silicon, build from scratch, avoids Postgresql SCRAM authentication problem
           pip install  psycopg2
+
+          # link back to mounted volumes
+          ln -s /studies /data_model/studies
+          ln -s /output /data_model/output
+          
+          echo "Done setting up data_model"
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
