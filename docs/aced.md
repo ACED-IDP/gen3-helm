@@ -121,6 +121,28 @@ sysctl vm.max_map_count
 # vm.max_map_count = 262144
 ```
 
+## Increase Elasticsearch Memory
+
+As referenced in the [Gen3 developer docs](gen3_developer_environments.md#elasticsearch-error), Elasticsearch may output an error regarding too low of `max virtual memory` --
+
+```
+ERROR: [1] bootstrap checks failed
+[1]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+```
+
+To fix this we'll open a shell into the Rancher Desktop node and update the required memory fields -- 
+
+```sh
+rdctl shell
+
+sudo sysctl -w vm.max_map_count=262144
+sudo sh -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf'
+
+sysctl vm.max_map_count
+# vm.max_map_count = 262144
+```
+
+
 ## Add ETL Pod
 
 > Login to browser first, download credentials.json to Secrets/credentials.json
