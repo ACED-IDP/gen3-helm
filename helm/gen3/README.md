@@ -18,44 +18,15 @@ Helm chart to deploy Gen3 Data Commons
 
 | Repository | Name | Version |
 |------------|------|---------|
-<<<<<<< HEAD
-| file://../ambassador | ambassador | 0.1.6 |
-<<<<<<< HEAD
-| file://../arborist | arborist | 0.1.6 |
-| file://../argo-wrapper | argo-wrapper | 0.1.2 |
-| file://../audit | audit | 0.1.6 |
-| file://../aws-es-proxy | aws-es-proxy | 0.1.4 |
-=======
-=======
 | file://../ambassador | ambassador | 0.1.7 |
->>>>>>> b3c2798 (Documentation and various fixes/updates (#121))
 | file://../arborist | arborist | 0.1.7 |
 | file://../argo-wrapper | argo-wrapper | 0.1.3 |
 | file://../audit | audit | 0.1.8 |
 | file://../aws-es-proxy | aws-es-proxy | 0.1.5 |
->>>>>>> ce5779e (adding pod disruption budgets to help improve availability. The common chart has the pdb template and each chart has the ability to enable the pdb from the global values section. The gen3 umbrella chart also has this ability and will override the subchart options if enabled.)
 | file://../common | common | 0.1.6 |
 | file://../elasticsearch | elasticsearch | 0.1.4 |
-<<<<<<< HEAD
-| file://../fence | fence | 0.1.7 |
-| file://../guppy | guppy | 0.1.6 |
-<<<<<<< HEAD
-| file://../hatchery | hatchery | 0.1.4 |
-| file://../indexd | indexd | 0.1.8 |
-| file://../manifestservice | manifestservice | 0.1.7 |
-| file://../metadata | metadata | 0.1.6 |
-| file://../peregrine | peregrine | 0.1.7 |
-| file://../pidgin | pidgin | 0.1.5 |
-| file://../portal | portal | 0.1.5 |
-| file://../requestor | requestor | 0.1.6 |
-| file://../revproxy | revproxy | 0.1.8 |
-| file://../sheepdog | sheepdog | 0.1.8 |
-| file://../ssjdispatcher | ssjdispatcher | 0.1.3 |
-=======
-=======
 | file://../fence | fence | 0.1.8 |
 | file://../guppy | guppy | 0.1.7 |
->>>>>>> b3c2798 (Documentation and various fixes/updates (#121))
 | file://../hatchery | hatchery | 0.1.5 |
 | file://../indexd | indexd | 0.1.9 |
 | file://../manifestservice | manifestservice | 0.1.8 |
@@ -67,12 +38,7 @@ Helm chart to deploy Gen3 Data Commons
 | file://../revproxy | revproxy | 0.1.9 |
 | file://../sheepdog | sheepdog | 0.1.9 |
 | file://../ssjdispatcher | ssjdispatcher | 0.1.4 |
-<<<<<<< HEAD
->>>>>>> ce5779e (adding pod disruption budgets to help improve availability. The common chart has the pdb template and each chart has the ability to enable the pdb from the global values section. The gen3 umbrella chart also has this ability and will override the subchart options if enabled.)
-| file://../wts | wts | 0.1.8 |
-=======
 | file://../wts | wts | 0.1.9 |
->>>>>>> b3c2798 (Documentation and various fixes/updates (#121))
 | https://charts.bitnami.com/bitnami | postgresql | 11.9.13 |
 
 ## Values
@@ -104,21 +70,6 @@ Helm chart to deploy Gen3 Data Commons
 | fence.image | map | `{"repository":null,"tag":null}` | Docker image information. |
 | fence.image.repository | string | `nil` | The Docker image repository for the fence service. |
 | fence.image.tag | string | `nil` | Overrides the image tag whose default is the chart appVersion. |
-<<<<<<< HEAD
-<<<<<<< HEAD
-| global | map | `{"aws":{"enabled":false},"ddEnabled":false,"dev":true,"dictionaryUrl":"https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json","dispatcherJobNum":10,"environment":"default","hostname":"localhost","kubeBucket":"kube-gen3","logsBucket":"logs-gen3","netPolicy":true,"portalApp":"gitops","postgres":{"dbCreate":true,"master":{"host":null,"password":null,"port":"5432","username":"postgres"}},"publicDataSets":true,"revproxyArn":"arn:aws:acm:us-east-1:123456:certificate","syncFromDbgap":false,"tierAccessLevel":"libre","tierAccessLimit":1000,"userYamlS3Path":"s3://cdis-gen3-users/test/user.yaml"}` | Global configuration options. |
-| global.aws | map | `{"enabled":false}` | AWS configuration |
-=======
-| global | map | `{"aws":{"account":{"aws_access_key_id":null,"aws_secret_access_key":null},"enabled":false},"ddEnabled":false,"dev":true,"dictionaryUrl":"https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json","dispatcherJobNum":10,"environment":"default","gcp":true,"hostname":"localhost","kubeBucket":"kube-gen3","logsBucket":"logs-gen3","minAvialable":1,"netPolicy":true,"pdb":false,"portalApp":"gitops","postgres":{"dbCreate":true,"master":{"host":null,"password":null,"port":"5432","username":"postgres"}},"publicDataSets":true,"revproxyArn":"arn:aws:acm:us-east-1:123456:certificate","syncFromDbgap":false,"tierAccessLevel":"libre","tls":{"cert":null,"key":null},"userYamlS3Path":"s3://cdis-gen3-users/test/user.yaml"}` | Global configuration options. |
-| global.aws.account | map | `{"aws_access_key_id":null,"aws_secret_access_key":null}` | Credentials for AWS |
-| global.aws.enabled | bool | `false` | Set to true if deploying to AWS. Controls ingress annotations. |
->>>>>>> ce5779e (adding pod disruption budgets to help improve availability. The common chart has the pdb template and each chart has the ability to enable the pdb from the global values section. The gen3 umbrella chart also has this ability and will override the subchart options if enabled.)
-| global.ddEnabled | bool | `false` | Whether Datadog is enabled. |
-| global.dev | bool | `true` | Whether the deployment is for development purposes. Deploys postgres/es charts alongside gen3. |
-| global.dictionaryUrl | string | `"https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json"` | URL of the data dictionary. |
-| global.dispatcherJobNum | int | `10` | Number of dispatcher jobs. |
-| global.environment | string | `"default"` | Environment name. This should be the same as vpcname if you're doing an AWS deployment. Currently this is being used to share ALB's if you have multiple namespaces. Might be used other places too. |
-=======
 | gitops.createdby | string | `nil` | - createdby.png - base64 |
 | gitops.css | string | `nil` | - multiline string - gitops.css |
 | gitops.favicon | string | `nil` | - favicon in base64 |
@@ -131,7 +82,6 @@ Helm chart to deploy Gen3 Data Commons
 | global.dictionaryUrl | string | `"https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json"` | URL of the data dictionary. |
 | global.dispatcherJobNum | int | `10` | Number of dispatcher jobs. |
 | global.environment | string | `"default"` | Environment name. This should be the same as vpcname if you're doing an AWS deployment. Currently this is being used to share ALB's if you have multiple namespaces in same cluster. |
->>>>>>> b3c2798 (Documentation and various fixes/updates (#121))
 | global.hostname | string | `"localhost"` | Hostname for the deployment. |
 | global.netPolicy | bool | `true` | Whether network policies are enabled. |
 | global.portalApp | string | `"gitops"` | Portal application name. |
@@ -214,13 +164,7 @@ Helm chart to deploy Gen3 Data Commons
 | portal.image | map | `{"repository":null,"tag":null}` | Docker image information. |
 | portal.image.repository | string | `nil` | The Docker image repository for the portal service. |
 | portal.image.tag | string | `nil` | Overrides the image tag whose default is the chart appVersion. |
-<<<<<<< HEAD
-| postgresql | map | `{"primary":{"persistence":{"enabled":true}}}` | To configure postgresql subchart Disable persistence by default so we can spin up and down ephemeral environments |
-| postgresql.primary.persistence.enabled | bool | `true` | Option to persist the dbs data. |
-| requestor | map | `{"enabled":false,"image":{"repository":null,"tag":null}}` | Configurations for requestor chart. |
-=======
 | postgresql.primary.persistence.enabled | bool | `false` | Option to persist the dbs data. |
->>>>>>> b3c2798 (Documentation and various fixes/updates (#121))
 | requestor.enabled | bool | `false` | Whether to deploy the requestor subchart. |
 | requestor.image | map | `{"repository":null,"tag":null}` | Docker image information. |
 | requestor.image.repository | string | `nil` | The Docker image repository for the requestor service. |
