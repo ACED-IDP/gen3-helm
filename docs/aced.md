@@ -97,7 +97,6 @@ KUBE_EDITOR="code -w" kubectl edit secrets gen3-certs
 ```sh
 kubectl delete secrets gen3-certs
 kubectl create secret tls gen3-certs --key=Secrets/TLS/service.key --cert=Secrets/TLS/service.crt
-
 ```
 
 ## Increase Elasticsearch Memory
@@ -218,3 +217,47 @@ export PGPORT=`cat /creds/sheepdog-creds/port`
 echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY  
 ```
 
+# Local Development
+
+- Add IP address from ingress to `/etc/hosts`
+
+`kubectl get ingress`
+```
+NAME           CLASS     HOSTS                      ADDRESS         PORTS     AGE
+revproxy-dev   traefik   development.aced-idp.org   192.168.205.2   80, 443   50m
+```
+
+`/etc/hosts`
+```
+# Local ACED development
+192.168.205.2 development.aced-idp.org
+```
+
+Import the Certificate Authority (CA) file into a macOS keychain. This keychain can be one from the list of 'Default Keychains' (e.g. 'login'). Alternatively, create a custom keychain that will be used for development in order to avoid modifying existing records.
+
+- New Keychain... > ACED-development > Enter new passphrase for this keychain
+
+- Select the ACED-development keychain
+
+- File > Import Items... > Select the MyCA.pem file
+
+- Right click the certificate > Get Info > Trust > Change 'When using this certificate:' to Always Trust
+
+https://development.aced-idp.org should now load normally with no SSL errors.
+
+# Process for generating SSL certs for local development
+
+- Create SSL Certs for development.aced-idp.org ([reference](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate))
+
+```
+cd helm/revproxy/ssl
+chmod +x generate_certs.sh
+./generate_certs.sh
+```
+
+This will output:
+- the certificate files for development.aced-idp.org:
+    - development.aced-idp.org.crt
+    - development.aced-idp.org.key
+- the certificate authority files that can be imported into the user's keyring:
+    - MyCA.pem
