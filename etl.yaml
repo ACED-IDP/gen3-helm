@@ -27,6 +27,10 @@ spec:
       hostPath:
         path: /Users/walsbr/aced/data_model/output
 
+    - name: my-certificate-authority-mount
+      hostPath:
+        path: /Users/walsbr/aced/gen3-helm/Secrets/TLS/myCA.pem
+
   containers:
     - name: container-configmap
       image: quay.io/ohsu-comp-bio/aced-etl:latest
@@ -53,6 +57,11 @@ spec:
         - name: output-mount
           mountPath: /output
 
+        # custom certificate
+        - name: my-certificate-authority-mount
+          mountPath: /usr/local/share/ca-certificates/myCA.crt
+#          subPath: myCA.pem
+
       command: ["/bin/bash" ]
       args:
         - "-c"
@@ -60,15 +69,7 @@ spec:
           # Add the revproxy-service IP address to the pod's hosts file
           echo $REVPROXY_SERVICE_SERVICE_HOST aced-training.compbio.ohsu.edu >> /etc/hosts
           
-          # Until we fix in helm env, setup well known postgres env variables
-          cat  << EOF >> ~/.bashrc
-          export PGDB=`cat /creds/sheepdog-creds/database`
-          export PGPASSWORD=`cat /creds/sheepdog-creds/password`
-          export PGUSER=`cat /creds/sheepdog-creds/username`
-          export PGHOST=`cat /creds/sheepdog-creds/host`
-          export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
-          export PGPORT=`cat /creds/sheepdog-creds/port`
-          EOF
+
 
           # Install network and development tools. gcc is necessary for installing the gen3 SDK.
           apt-get -y update; apt-get -y install curl iputils-ping gcc
@@ -80,7 +81,10 @@ spec:
 
           # Install dependencies
           apt install git libpq-dev python3-dev build-essential vim unzip  -y
-
+          
+          # use our CA
+          update-ca-certificates
+          
           # Until we fix in helm env, setup well known postgres env variables
           cat  << EOF >> ~/.bashrc
           export PGDB=`cat /creds/sheepdog-creds/database`
@@ -89,6 +93,7 @@ spec:
           export PGHOST=`cat /creds/sheepdog-creds/host`
           export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
           export PGPORT=`cat /creds/sheepdog-creds/port`
+          export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
           EOF
 
           git clone https://github.com/ACED-IDP/data_model
@@ -104,6 +109,7 @@ spec:
           ln -s /output /data_model/output
           
           echo "Done setting up data_model"
+
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
