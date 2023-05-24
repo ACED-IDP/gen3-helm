@@ -26,7 +26,7 @@ helm repo add gen3 https://helm.gen3.org
 helm repo update
 ```
 
-## Aced specific files:
+## Aced specific files in Secrets/:
 
 * gitops.json - Controls windmill UI configuration - see values.yaml
   Gitops values are encoded as a json string under portal.gitops.json
@@ -75,10 +75,45 @@ git checkout feature/etl
 # uninstall previous version
 helm uninstall local
 # update dependencies
-helm dependency update helm/gen3
+helm dependency update ./helm/gen3
+
+# check for any existing config maps
+kc get configmaps
+# expected results ...
+# NAME               DATA   AGE
+# kube-root-ca.crt   1      3m
+# delete if necessary
+kc delete configmaps --all
+
+# check existing secrets
+kc get secrets
+# expected results ...
+# No resources found in default namespace.
+# delete if necessary
+kc delete secrets --all
 
 # Start deployment 
-helm upgrade --install local ./helm/gen3 -f values.yaml -f user.yaml -f fence-config.yaml -f Secrets/TLS/gen3-certs.yaml
+helm upgrade --install local ./helm/gen3 -f Secrets/values.yaml -f Secrets/user.yaml -f Secrets/fence-config.yaml -f Secrets/TLS/gen3-certs.yaml
+# expected results ...
+#Release "local" does not exist. Installing it now.
+#NAME: local
+#LAST DEPLOYED: Wed May 24 09:48:13 2023
+#NAMESPACE: default
+#STATUS: deployed
+#REVISION: 1
+
+# monitor for 3-4 minutes
+# pods awaiting run
+kc get pods | grep -v Run | grep -v Complete 
+
+# without data loaded, the state of the system should be:
+
+kc get pods | grep -v Run | grep -v Complete
+#NAME                                              READY   STATUS             RESTARTS         AGE
+#guppy-deployment-5c7d5d74b6-cmk5s                 0/1     CrashLoopBackOff   15 (2m35s ago)   59m
+
+# congrats you are now ready to etl in data.
+
 
 ```
 
@@ -146,11 +181,28 @@ sysctl vm.max_map_count
 
 > Login to browser first, download credentials.json to Secrets/credentials.json
 
+> TODO:
+```
+git diff   etl.yaml
+
+-  nodeSelector:
+-        eks.amazonaws.com/nodegroup: aced-commons-etl-node-group
++#  nodeSelector:
++#        eks.amazonaws.com/nodegroup: aced-commons-etl-node-group
+
+```
+
+
 ```sh
-kubectl delete configmap credentials
-kubectl create configmap credentials --from-file Secrets
+# delete any existing configmap
+kubectl delete configmap gen3-credentials
+# This is OK: Error from server (NotFound): configmaps "gen3-credentials" not found
+kubectl create configmap gen3-credentials --from-file Secrets
+# configmap/gen3-credentials created
 kubectl delete pod etl
+# This is OK: Error from server (NotFound): pods "etl" not found
 kubectl apply -f etl.yaml
+# pod/etl created
 sleep 10
 # kubectl describe pod etl
 kubectl exec --stdin --tty etl -- /bin/bash
@@ -239,9 +291,10 @@ revproxy-dev   traefik   development.aced-idp.org   192.168.205.2   80, 443   50
 
 - Select the ACED-development keychain
 
-- File > Import Items... > Select the MyCA.pem file
+- File > Import Items... > Select the myCA.pem file from gen3-helm/Secrets/TLS
 
 - Right click the certificate > Get Info > Trust > Change 'When using this certificate:' to Always Trust
+![image](images/development.aced-idp.org-KEYCHAIN-MACOS.png)
 
 https://development.aced-idp.org should now load normally with no SSL errors.
 
@@ -261,3 +314,17 @@ This will output:
     - development.aced-idp.org.key
 - the certificate authority files that can be imported into the user's keyring:
     - MyCA.pem
+
+
+## TODO How to differentiate secrets by environment [production, staging, test, development]?
+
+e.g fence-config.yaml
+
+ENCRYPTION_KEY
+DEBUG
+OPENID_CONNECT.google.*
+OPENID_CONNECT.microsoft.*
+AWS_CREDENTIALS.*
+S3_BUCKETS.*
+DATA_UPLOAD_BUCKET: aced-commons-data-bucket
+ALLOWED_DATA_UPLOAD_BUCKETS: *
