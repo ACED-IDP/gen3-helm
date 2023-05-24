@@ -219,7 +219,7 @@ echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY
 
 # Local Development
 
-- Add IP address from ingress to `/etc/hosts`
+1. Add IP address from ingress to `/etc/hosts`
 
 `kubectl get ingress`
 ```
@@ -233,7 +233,7 @@ revproxy-dev   traefik   development.aced-idp.org   192.168.205.2   80, 443   50
 192.168.205.2 development.aced-idp.org
 ```
 
-Import the Certificate Authority (CA) file into a macOS keychain. This keychain can be one from the list of 'Default Keychains' (e.g. 'login'). Alternatively, create a custom keychain that will be used for development in order to avoid modifying existing records.
+2. Import the Certificate Authority (CA) file into a macOS keychain. This keychain can be one from the list of 'Default Keychains' (e.g. 'login'). Alternatively, create a custom keychain that will be used for development in order to avoid modifying existing records.
 
 - New Keychain... > ACED-development > Enter new passphrase for this keychain
 
@@ -247,7 +247,7 @@ https://development.aced-idp.org should now load normally with no SSL errors.
 
 # Process for generating SSL certs for local development
 
-- Create SSL Certs for development.aced-idp.org ([reference](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate))
+Create SSL Certs for development.aced-idp.org ([reference](https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate)):
 
 ```
 cd helm/revproxy/ssl
