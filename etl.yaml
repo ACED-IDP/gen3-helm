@@ -5,107 +5,57 @@ metadata:
 
 spec:
   volumes:
-    # To create the crredentials config run --
+    # To create the credentials config run --
     # kubectl create configmap gen3-credentials --from-file Secrets
     - name: gen3-credentials
       configMap:
         name: gen3-credentials
 
-    - name: sheepdog-dbcreds
-      secret:
-        secretName: sheepdog-dbcreds
-
-    - name: useryaml
-      configMap:
-        name: useryaml
-
     - name: studies-mount
+      # {{- if $.Values.global.dev }}          
       hostPath:
         path: /Users/walsbr/aced/data_model/studies
+      # {{- else }}
+      # {{- end }}
 
     - name: output-mount
+      # {{- if $.Values.global.dev }}          
       hostPath:
         path: /Users/walsbr/aced/data_model/output
+      # {{- else }}
+      # {{- end }}
 
   containers:
     - name: container-configmap
       image: quay.io/ohsu-comp-bio/aced-etl:latest
       volumeMounts:
-        # Gen3 credentials file
+        # ETL AWS credentials file
         - name: gen3-credentials
-          mountPath: /creds/credentials.json
-          subPath: credentials.json
+          mountPath: /root/.aws/credentials
+          subPath: etl-aws-credentials
 
-        # Sheepdog creds, secrets defined in helm/sheepdog/templates/deployment.yaml
-        - name: sheepdog-dbcreds
-          mountPath: /creds/sheepdog-creds
-
-        # User yaml, configmap defined in helm/fence/templates/useryaml-job.yaml
-        - name: useryaml
-          mountPath: /creds/user.yaml
-          subPath: useryaml
-
-        # studies metadata
-        - name: studies-mount
-          mountPath: /studies
-
-        # studies files
-        - name: output-mount
-          mountPath: /output
+        # Fence config file
+        - name: gen3-credentials
+          mountPath: /creds/fence-config.yaml
+          subPath: fence-config.yaml
 
       command: ["/bin/bash" ]
       args:
         - "-c"
         - |
-          # Add the revproxy-service IP address to the pod's hosts file
-          echo $REVPROXY_SERVICE_SERVICE_HOST aced-training.compbio.ohsu.edu >> /etc/hosts
-          
-          # Until we fix in helm env, setup well known postgres env variables
-          cat  << EOF >> ~/.bashrc
-          export PGDB=`cat /creds/sheepdog-creds/database`
-          export PGPASSWORD=`cat /creds/sheepdog-creds/password`
-          export PGUSER=`cat /creds/sheepdog-creds/username`
-          export PGHOST=`cat /creds/sheepdog-creds/host`
-          export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
-          export PGPORT=`cat /creds/sheepdog-creds/port`
-          EOF
+          apt-get update && apt-get install -y wget
+          export VERSION=v4.34.1
+          export BINARY=yq_linux_amd64
+          wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
+            tar xz && mv ${BINARY} /usr/bin/yq
 
-          # Install network and development tools. gcc is necessary for installing the gen3 SDK.
-          apt-get -y update; apt-get -y install curl iputils-ping gcc
-
-          # move the credentials file to a well known spot
-          # https://github.com/uc-cdis/gen3sdk-python/blob/master/docs/reference/sdkClasses.md#gen3auth
-          mkdir ~/.gen3
-          cp /creds/credentials.json ~/.gen3/credentials.json
-
-          # Install dependencies
-          apt install git libpq-dev python3-dev build-essential vim unzip  -y
-
-          # Until we fix in helm env, setup well known postgres env variables
-          cat  << EOF >> ~/.bashrc
-          export PGDB=`cat /creds/sheepdog-creds/database`
-          export PGPASSWORD=`cat /creds/sheepdog-creds/password`
-          export PGUSER=`cat /creds/sheepdog-creds/username`
-          export PGHOST=`cat /creds/sheepdog-creds/host`
-          export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
-          export PGPORT=`cat /creds/sheepdog-creds/port`
-          EOF
-
-          git clone https://github.com/ACED-IDP/data_model
-          cd data_model
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          # mac silicon, build from scratch, avoids Postgresql SCRAM authentication problem
-          pip install  psycopg2
-
-          # link back to mounted volumes
-          ln -s /studies /data_model/studies
-          ln -s /output /data_model/output
-          
-          echo "Done setting up data_model"
+          export BUCKETS_FILE=/creds/allowed_data_upload_buckets
+          yq '.fence.FENCE_CONFIG.ALLOWED_DATA_UPLOAD_BUCKETS | @csv' /creds/fence-config.yaml > $BUCKETS_FILE
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
-  nodeSelector:
-        eks.amazonaws.com/nodegroup: aced-commons-etl-node-group
+  
+  # {{- if $.Values.global.dev }}
+  # nodeSelector:
+  #       eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group
+  # {{- end }}

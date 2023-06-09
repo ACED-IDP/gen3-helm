@@ -14,6 +14,7 @@ clean:
 # Update from the local helm chart repository
 update:
 	helm dependency update ./helm/gen3
+	
 
 # Deploy the helm release
 install debug:
