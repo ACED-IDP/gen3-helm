@@ -12,18 +12,12 @@ spec:
         name: gen3-credentials
 
     - name: studies-mount
-      # {{- if $.Values.global.dev }}          
       hostPath:
         path: /Users/walsbr/aced/data_model/studies
-      # {{- else }}
-      # {{- end }}
 
     - name: output-mount
-      # {{- if $.Values.global.dev }}          
       hostPath:
         path: /Users/walsbr/aced/data_model/output
-      # {{- else }}
-      # {{- end }}
 
   containers:
     - name: container-configmap
@@ -50,12 +44,8 @@ spec:
             tar xz && mv ${BINARY} /usr/bin/yq
 
           export BUCKETS_FILE=/creds/allowed_data_upload_buckets
-          yq '.fence.FENCE_CONFIG.ALLOWED_DATA_UPLOAD_BUCKETS | @csv' /creds/fence-config.yaml > $BUCKETS_FILE
+          yq '.fence.FENCE_CONFIG.ALLOWED_DATA_UPLOAD_BUCKETS | {"ALLOWED_DATA_UPLOAD_BUCKETS": . } ' /creds/fence-config.yaml > $BUCKETS_FILE```
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
   
-  # {{- if $.Values.global.dev }}
-  # nodeSelector:
-  #       eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group
-  # {{- end }}
