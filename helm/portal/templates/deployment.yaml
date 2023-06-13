@@ -2,6 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: portal-deployment
+  labels:
+    {{- include "portal.labels" . | nindent 4 }}
+    {{- if .Values.global.ddEnabled }}
+    {{- include "common.datadogLabels" . | nindent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:
@@ -16,7 +21,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "portal.labels" . | nindent 8 }}
+        {{- include "portal.selectorLabels" . | nindent 8 }}
+        public: "yes"
+        {{- if .Values.global.ddEnabled }}
+        {{- include "common.datadogLabels" . | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.affinity }}
       affinity:
@@ -61,6 +70,9 @@ spec:
           #   - /bin/bash
           #   - ./dockerStart.sh
           env:
+            {{- if .Values.global.ddEnabled }}
+            {{- include "common.datadogEnvVar" . | nindent 12 }}
+            {{- end }}
             - name: HOSTNAME
               value: revproxy-service
             # disable npm 7's brand new update notifier to prevent Portal from stuck at starting up
@@ -70,7 +82,7 @@ spec:
             - name: NODE_ENV
               value: "dev"
             - name: APP
-              value: {{ .Values.portalApp | quote }}
+              value: {{ .Values.global.portalApp | quote }}
             - name: GEN3_BUNDLE
               # optional: true
               value: ""
@@ -90,12 +102,8 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: manifest-global
-                  # acceptable values for `tier_access_level` are: `libre`, `regular` and `private`. If omitted, by default common will be treated as `private`
                   key: tier_access_level
-                  # for now making it optional so won't break anything
                   optional: true
-#needed to be adjusted to use the gen3 umbrella chart or local var ^ 
-#adding a var in helpers.tpl for later- Elise
             - name: TIER_ACCESS_LIMIT
               valueFrom:
                 configMapKeyRef:
