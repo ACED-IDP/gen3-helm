@@ -307,10 +307,17 @@ gen3 tfapply
 
 ## RDS (Aurora)
 
+Standard Create
+
 ### Engine options
 
+Aurora (PostgreSQL-Compatible)
+
 `Show versions that support Serverless v2`
-Aurora MySQL 3.02.0 (compatible with MySQL 8.0.23)
+Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
+
+### Templates
+Production
 
 ### Instance configuration
 
@@ -444,4 +451,14 @@ PGHOST=foo-aurora.rds.amazonaws.com
 
 ```
 psql -U postgres -W
+```
+
+# No network connection between pods or from pods to the outside network
+
+Commands like curl revproxy-service failing or commands like apt update and ping 8.8.8.8 hanging.
+
+Restart the CoreDNS service within the kube-system namespace 
+
+```sh
+kubectl rollout restart -n kube-system deployment/coredns
 ```
