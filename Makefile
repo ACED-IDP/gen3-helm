@@ -23,6 +23,7 @@ install debug:
 	-f Secrets/values.yaml \
 	-f Secrets/user.yaml \
 	-f Secrets/fence-config.yaml \
+	-f Secrets/TLS/gen3-certs.yaml \
 	$(DEBUG)
 
 .PHONY: debug
