@@ -380,7 +380,18 @@ https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#
 ### Engine options
 
 `Show versions that support Serverless v2`
-Aurora MySQL 3.02.0 (compatible with MySQL 8.0.23)
+
+Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
+
+### Templates
+Production
+
+### Settings
+
+DB cluster identifier
+aced-commons-development-aurora
+
+Manage master credentials in AWS Secrets Manager
 
 ### Settings
 
