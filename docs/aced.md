@@ -108,8 +108,8 @@ sysctl vm.max_map_count
 > Login to browser first, download credentials.json to Secrets/credentials.json
 
 ```sh
-kubectl delete configmap credentials
-kubectl create configmap credentials --from-file Secrets
+kubectl delete configmap gen3-credentials
+kubectl create configmap gen3-credentials --from-file Secrets
 kubectl delete pod etl
 kubectl apply -f etl.yaml
 sleep 10
