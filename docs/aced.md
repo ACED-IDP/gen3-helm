@@ -360,7 +360,16 @@ Allow remote access from
 
 ## ETL Node Group
 
-- TODO: kubectl coredon command for automatically created nodes?
+Create a new node group with 100GB of storage for use by the ETL pod and update the `nodeSelector` value in the ETL yaml file:
+
+```yaml
+nodeSelector:
+  eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group
+```
+
+The ETL pod should not be ready for deployment!
+
+Note: if the node or nodes in a given node group do not have egress or network access then the `kubectl coredon` command can be used to disable the node group in order to prevent scheduling nodes to that group.
 
 ## RDS (Aurora)
 
@@ -500,7 +509,6 @@ aws-es-proxy:
 ```
 
 ## S3 Buckets
-- TODO: Steps for S3 Bucket creation
 
 - Cloud Automation automatically creates four buckets:
   - aced-commons-staging-data-bucket	
@@ -508,7 +516,7 @@ aws-es-proxy:
   - kube-aced-commons-staging-gen3	
   - logs-aced-commons-staging-gen3
 
-- Need to manually create five buckets:
+This buckets serve as a template for our storage buckets but won't actually be used to store data. Instead we'll manually create five buckets that represent the data storage for each institution:
   - aced-production-data-bucket
   - aced-production-manchester-data-bucket
   - aced-production-ohsu-data-bucket
@@ -516,7 +524,10 @@ aws-es-proxy:
   - aced-production-ucl-data-bucket
 
 ## Certificate
-  - TODO: Steps for validation
+
+Creating a [certificate in AWS](https://us-west-2.console.aws.amazon.com/acm/home?region=us-west-2#/certificates/list) requires DNS validation through the domain registrar (e.g. Google Domains). For our purposes we'll create a certificate that has the following domain names:
+- `aced-idp.org`
+- `*.aced-idp.org`
 
 ## Install Load Balancer Controller
 
