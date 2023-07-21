@@ -358,6 +358,10 @@ EC2 Key Pair
 Allow remote access from
 `All`
 
+## ETL Node Group
+
+- TODO: kubectl coredon command for automatically created nodes?
+
 ## RDS (Aurora)
 
 https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#
@@ -494,6 +498,22 @@ aws-es-proxy:
     awsAccessKeyId: "<ACCESS KEY ID>"
     awsSecretAccessKey: "<SECRET ACCESS KEY>"
 ```
+
+## S3 Buckets
+- TODO: Steps for S3 Bucket creation
+
+- Cloud Automation automatically creates four buckets:
+  - aced-commons-staging-data-bucket	
+  - aced-commons-staging-data-bucket-logs	
+  - kube-aced-commons-staging-gen3	
+  - logs-aced-commons-staging-gen3
+
+- Need to manually create five buckets:
+  - aced-production-data-bucket
+  - aced-production-manchester-data-bucket
+  - aced-production-ohsu-data-bucket
+  - aced-production-stanford-data-bucket
+  - aced-production-ucl-data-bucket
 
 ## Certificate
   - TODO: Steps for validation
