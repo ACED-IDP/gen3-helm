@@ -5,7 +5,7 @@ metadata:
 
 spec:
   volumes:
-    # To create the crredentials config run --
+    # To create the credentials config run --
     # kubectl create configmap gen3-credentials --from-file Secrets
     - name: gen3-credentials
       configMap:
@@ -57,10 +57,9 @@ spec:
       args:
         - "-c"
         - |
-          # Add the revproxy-service IP address to the pod's hosts file
-          echo $REVPROXY_SERVICE_SERVICE_HOST aced-training.compbio.ohsu.edu >> /etc/hosts
           
           # Until we fix in helm env, setup well known postgres env variables
+          # TODO - set GLOBAL_HOSTNAME to value from values.yaml
           cat  << EOF >> ~/.bashrc
           export PGDB=`cat /creds/sheepdog-creds/database`
           export PGPASSWORD=`cat /creds/sheepdog-creds/password`
@@ -84,5 +83,7 @@ spec:
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
+
+  # TODO - read nodegroup from values.yaml
   nodeSelector:
-        eks.amazonaws.com/nodegroup: aced-commons-etl-node-group
+        eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
