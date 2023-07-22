@@ -84,5 +84,7 @@ spec:
 
           # For development purposes, extends the lifespan of the pod to let us exec into it.
           while true; do sleep 30; done;
-  nodeSelector:
-        eks.amazonaws.com/nodegroup: aced-commons-etl-node-group
+
+# TODO - read nodegroup from values.yaml
+#  nodeSelector:
+#        eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
