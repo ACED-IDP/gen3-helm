@@ -87,7 +87,10 @@ dependencies:
   version: "0.1.10"
   repository: "file://../wts"
   condition: wts.enabled
-
+- name: sower
+  version: "0.1.4"
+  repository: "file://../sower"
+  condition: sower.enabled
 
 - name: elasticsearch
   version: "0.1.5"
