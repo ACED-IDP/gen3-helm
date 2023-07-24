@@ -382,7 +382,6 @@ https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#
 Aurora (PostgreSQL-Compatible)
 
 `Show versions that support Serverless v2`
-
 Aurora PostgreSQL (Compatible with PostgreSQL 14.6)
 
 ### Templates
