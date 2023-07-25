@@ -91,16 +91,14 @@ gen3_util access <request-ids> SIGNED
         # preconfigured roles for system admins
         - name: administrators
           policies:
-          - services.sheepdog-admin  # CRUD operations on programs and projects
-          - data_upload              # upload data files
-          - indexd_admin             # CRUD operations on data files
-          - requestor_creator        # create requests for data access
-          - requestor_updater        # approve and sign requests for data access
-          - requestor_reader         # read all requests for data access
-          - sower_user               # submit jobs to sower
-          - workspace                # future: use workspace (notebooks, etc)
-          users: []
-          # ADMIN USER EMAILS GO HERE
+          - workspace
+          - services.sheepdog-admin
+          - data_upload
+          - requestor_updater
+          - requestor_creator
+          - requestor_reader
+          - indexd_admin
+          users: []  # PREDEFINED ADMIN USERS GO HERE
 
 
         resources:
@@ -118,7 +116,7 @@ gen3_util access <request-ids> SIGNED
         - name: programs   # institutions
           subresources:
           - name: ohsu
-            subresources:  # studies added by requestor 
+            subresources:  # studies
             - name: projects
           - name: ucl
             subresources:
@@ -139,18 +137,22 @@ gen3_util access <request-ids> SIGNED
           - /workspace
           role_ids:
           - workspace_user
+          - administrator
+          - writer
+          - reader
 
         - id: data_upload
           description: upload raw data files to S3
           role_ids:
-          - file_uploader
+          - writer
+          - administrator
           resource_paths:
           - /data_file
 
         - id: services.sheepdog-admin
           description: CRUD access to programs and projects
           role_ids:
-            - sheepdog_admin
+            - administrator
           resource_paths:
             - /services/sheepdog/submission/program
             - /services/sheepdog/submission/project
@@ -158,7 +160,7 @@ gen3_util access <request-ids> SIGNED
         - id: indexd_admin
           description: full access to indexd API
           role_ids:
-            - indexd_admin
+            - administrator
           resource_paths:
             - /programs
             - /data_file
@@ -173,7 +175,7 @@ gen3_util access <request-ids> SIGNED
             - /sower      
 
         - id: requestor_updater
-          description: Allows approving access to ALL resource under "/programs"
+          description: Allows approving access to any resource under "/programs"
           role_ids:
             - requestor_updater_role
           resource_paths:
@@ -210,10 +212,9 @@ gen3_util access <request-ids> SIGNED
 
 
         - id: requestor_reader
-          description: read all requests
           role_ids:
             - requestor_reader_role
-          resource_paths:   # allows on programs and sower
+          resource_paths:
             - /programs
             - /sower      
 
@@ -225,74 +226,83 @@ gen3_util access <request-ids> SIGNED
 
 
         roles:
-        - id: file_uploader
+
+        - id: writer
+          description: Allows all write actions in a project
+
           permissions:
+
           - id: file_upload
+            description: upload files to a project
             action:
               service: fence
               method: file_upload
+
+          - id: storage_writer
+            action:
+              service: '*'
+              method: write-storage
+
+          - id: creator
+            action:
+              service: '*'
+              method: create
+
+          - id: updater
+            action:
+              service: '*'
+              method: update
+
+          - id: deleter
+            action:
+              service: '*'
+              method: delete
+
+
+
+        - id: reader
+          description: Allows all read actions in a project
+
+          permissions:
+
+          - id: storage_reader
+            action:
+              service: '*'
+              method: read-storage
+
+          - id: reader
+            action:
+              service: '*'
+              method: read
+
         - id: workspace_user
           permissions:
           - id: workspace_access
             action:
               service: jupyterhub
               method: access
-        - id: sheepdog_admin
-          description: CRUD access to programs and projects
+
+        - id: administrator
+          description: full access to all services
           permissions:
+
+          - id: all
+            action:
+              service: '*'
+              method: '*'
+
           - id: sheepdog_admin_action
+            description: CRUD access to programs and projects
             action:
               service: sheepdog
               method: '*'
-        - id: indexd_admin
-          description: full access to indexd API
-          permissions:
+
           - id: indexd_admin
+            description: full access to indexd API
             action:
               service: indexd
               method: '*'
-        - id: admin
-          permissions:
-            - id: admin
-              action:
-                service: '*'
-                method: '*'
-        - id: creator
-          permissions:
-            - id: creator
-              action:
-                service: '*'
-                method: create
-        - id: reader
-          permissions:
-            - id: reader
-              action:
-                service: '*'
-                method: read
-        - id: updater
-          permissions:
-            - id: updater
-              action:
-                service: '*'
-                method: update
-        - id: deleter
-          permissions:
-            - id: deleter
-              action:
-                service: '*'
-                method: delete
-        - id: storage_writer
-          permissions:
-            - id: storage_creator
-              action:
-                service: '*'
-                method: write-storage
-        - id: storage_reader
-          permissions:
-            - id: storage_reader
-              action:
-                service: '*'
-                method: read-storage
+
 
         # REQUESTOR ROLES
         - id: requestor_creator_role
@@ -358,11 +368,10 @@ gen3_util access <request-ids> SIGNED
         wts:
           policies: []
 
-      users: {}
-      # ADMIN USER EMAILS GO HERE
-        
+      users: [] # PREDEFINED ADMIN USERS GO HERE
 
 
-   cloud_providers: {}
-   groups: {}
+      cloud_providers: {}
+      groups: {}
+
 ```
