@@ -32,6 +32,8 @@ Since this approach relies on Gen3's [Requestor](https://github.com/uc-cdis/requ
 
 ### Adding Data Access Committee members
 
+Note: This example uses the ohsu program, but the same process applies to all programs.
+
 * A sysadmin will add the ohsu_requestor_updater_role  to a data-access-committee member(s)
 * Only users with the ohsu_requestor_updater_role  can APPROVE and SIGN adding policies
 
