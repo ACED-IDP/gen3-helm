@@ -4,7 +4,7 @@
 
 # Global configuration
 global:
-
+  
   # -- (map) AWS configuration
   dbRestoreBucket: aced-development
   dbRestorePath: meta_graph_load.py
@@ -233,7 +233,13 @@ portal:
 
 requestor:
   # -- (bool) Whether to deploy the requestor subchart.
-  enabled: false
+  enabled: true
+  # -- (map) Docker image information.
+  image:
+    # -- (string) The Docker image repository for the requestor service.
+    repository:
+    # -- (string) Overrides the image tag whose default is the chart appVersion.
+    tag:
 
 revproxy:
   # -- (bool) Whether to deploy the revproxy subchart.
@@ -269,11 +275,4 @@ postgresql:
   primary:
     persistence:
       # -- (bool) Option to persist the dbs data.
-      enabled: false
-
-elasticsearch:
-  clusterName: gen3-elasticsearch
-  maxUnavailable: 0
-  singleNode: true
-  replicas: 1
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+      enabled: true
