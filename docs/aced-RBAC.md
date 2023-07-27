@@ -67,7 +67,7 @@ gen3_util access <request-ids> SIGNED
  
 ```text
 # add requestor read and write policies to resource /programs/ohsu/projects/test
-gen3_util projects add user user@example.com ohsu-test
+gen3_util projects add user ohsu-test user@example.com 
 ```
 
 * Ony user's with the ohsu_requestor_updater_role  can approve and sign a request
@@ -80,6 +80,7 @@ gen3_util access <request-ids> SIGNED
 ## Configuration
 
 ```yaml
+
       authz:
         # policies automatically given to anyone, even if they are not authenticated
         anonymous_policies: []
@@ -100,8 +101,8 @@ gen3_util access <request-ids> SIGNED
           - requestor_creator
           - requestor_reader
           - indexd_admin
-          users: []  # PREDEFINED ADMIN USERS GO HERE
-
+          - sower
+          users: []  # ADD ADMIN USERS HERE
 
         resources:
         - name: workspace  # notebooks, etc
@@ -174,7 +175,6 @@ gen3_util access <request-ids> SIGNED
             - requestor_creator_role
           resource_paths:
             - /programs
-            - /sower      
 
         - id: requestor_updater
           description: Allows approving access to any resource under "/programs"
@@ -182,43 +182,40 @@ gen3_util access <request-ids> SIGNED
             - requestor_updater_role
           resource_paths:
             - /programs
-            - /sower      
 
         - id: ohsu_requestor_updater
           description: Allows approving access to any resource under "/programs/ohsu"
           role_ids:
-            - ohsu_requestor_updater_role
+            - requestor_updater_role
           resource_paths:
             - /programs/ohsu
 
         - id: ucl_requestor_updater
           description: Allows approving access to any resource under "/programs/ucl"
           role_ids:
-            - ucl_requestor_updater_role
+            - requestor_updater_role
           resource_paths:
             - /programs/ucl
 
         - id: manchester_requestor_updater
           description: Allows approving access to any resource under "/programs/manchester"
           role_ids:
-            - manchester_requestor_updater_role
+            - requestor_updater_role
           resource_paths:
             - /programs/manchester
 
         - id: stanford_requestor_updater
           description: Allows approving access to any resource under "/programs/stanford"
           role_ids:
-            - stanford_requestor_updater_role
+            - requestor_updater_role
           resource_paths:
             - /programs/stanford
-
 
         - id: requestor_reader
           role_ids:
             - requestor_reader_role
           resource_paths:
             - /programs
-            - /sower      
 
         # jobs (sower)
         - description: be able to use sower job
@@ -321,36 +318,6 @@ gen3_util access <request-ids> SIGNED
                 service: requestor
                 method: update
 
-
-        - id: ohsu_requestor_updater_role
-          permissions:
-            - id: ohsu_requestor_updater_action
-              action:
-                service: requestor
-                method: update
-
-        - id: ucl_requestor_updater_role
-          permissions:
-            - id: ucl_requestor_updater_action
-              action:
-                service: requestor
-                method: update
-
-        - id: manchester_requestor_updater_role
-          permissions:
-            - id: manchester_requestor_updater_action
-              action:
-                service: requestor
-                method: update
-
-        - id: stanford_requestor_updater_role
-          permissions:
-            - id: stanford_requestor_updater_action
-              action:
-                service: requestor
-                method: update
-
-
         - id: requestor_reader_role
           permissions:
             - id: requestor_reader_action
@@ -370,8 +337,8 @@ gen3_util access <request-ids> SIGNED
         wts:
           policies: []
 
-      users: [] # PREDEFINED ADMIN USERS GO HERE
-
+      # ADMIN USERS GO HERE 
+      users: [] 
 
       cloud_providers: {}
       groups: {}
