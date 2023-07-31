@@ -309,7 +309,7 @@ gitops:
 
 requestor:
   # -- (bool) Whether to deploy the requestor subchart.
-  enabled: false
+  enabled: true
   # -- (map) Docker image information.
   image:
     # -- (string) The Docker image repository for the requestor service.
