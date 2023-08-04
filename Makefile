@@ -31,7 +31,7 @@ change-context:
 
 check-secrets:
 	@$(eval ACTUAL=$(shell [ -z $(shell readlink Secrets) ] && echo "<empty>" || echo $(shell readlink Secrets)))
-	@[ $(ACTUAL) == "Secrets.$(DEPLOY)" ] || \
+	@[ "$(ACTUAL)" == "Secrets.$(DEPLOY)" ] || \
 	(printf "\033[1mUnexpected Secrets link\033[0m\n"; \
 	 printf "\033[92mExpected Secrets:\033[0m Secrets.$(DEPLOY)\n"; \
 	 printf "\033[93mActual Secrets:\033[0m   $(ACTUAL)\n"; \
