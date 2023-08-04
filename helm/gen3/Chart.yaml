@@ -79,19 +79,10 @@ dependencies:
   version: "0.1.6"
   repository: "file://../ssjdispatcher"
   condition: ssjdispatcher.enabled
-- name: sower
-  version: "0.1.6"
-  condition: sower.enabled
-  repository: "file://../sower"
 - name: wts
   version: "0.1.10"
   repository: "file://../wts"
   condition: wts.enabled
-- name: sower
-  version: "0.1.4"
-  repository: "file://../sower"
-  condition: sower.enabled
-
 - name: elasticsearch
   version: "0.1.5"
   repository: "file://../elasticsearch"
