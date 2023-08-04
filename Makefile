@@ -57,9 +57,9 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@$(eval ACTUAL=$(shell kubectl config current-context))
 	@$(eval DEPLOY=$(shell case $(ACTUAL) in \
 		(rancher-desktop) echo "local";; \
-		(*development) 		echo "development";; \
-		(*staging) 				echo "staging";; \
-		(*production) 		echo "production";; \
+		(*development) 	  echo "development";; \
+		(*staging) 		  echo "staging";; \
+		(*production) 	  echo "production";; \
 	esac))
 
 	@read -p "Uninstall $(DEPLOY) deployment? [y/N]: " sure && \
