@@ -1,10 +1,19 @@
 # Default values for etl-pod.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+# expected form: "aws s3 cp s3://$S3_BUCKET/$S3_PATH"
+# where S3_BUCKET is the bucket name and S3_PATH is the rest of the path
+env:
+  S3_BUCKET: aced-development
+  S3_PATH: meta_graph_load.py
+
 global:
   environment: default
   ddEnabled: false
   deployment: development
+  # as example variables just going to get a small python file
+
 
 replicaCount: 1
 
@@ -62,11 +71,11 @@ ingress:
 
 resources: 
    limits:
-     cpu: 100m
-     memory: 128Mi
+     cpu: 1.0
+     memory: 1Gi
    requests:
-     cpu: 100m
-     memory: 128Mi
+     cpu: 0.2
+     memory: 256Mi
 
 autoscaling:
   enabled: false

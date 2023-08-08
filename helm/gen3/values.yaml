@@ -5,6 +5,9 @@
 global:
   
   # -- (map) AWS configuration
+  dbRestoreBucket: aced-development
+  dbRestorePath: meta_graph_load.py
+
   aws:
     enabled: false
     # # -- (map) Credentials for AWS

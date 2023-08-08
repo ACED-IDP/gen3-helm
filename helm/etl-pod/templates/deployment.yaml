@@ -32,6 +32,10 @@ spec:
         - name: gen3-credentials
           configMap:
             name: gen3-credentials
+       
+        - name: aws-creds
+          configMap: 
+            name: aws-creds
 
         - name: sheepdog-dbcreds
           secret:
@@ -40,7 +44,7 @@ spec:
         - name: useryaml
           configMap:
             name: useryaml
-
+        
         - name: studies-mount
           hostPath:
             path: /Users/walsbr/aced/data_model/studies
@@ -58,22 +62,28 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"          
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"  
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+               
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          #ports:
+            #- name: http
+              #containerPort: {{ .Values.service.port }}
+              #protocol: TCP
+          #livenessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          #readinessProbe:
+            #httpGet:
+              #path: /
+              #port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -81,6 +91,9 @@ spec:
             - name: gen3-credentials
               mountPath: /creds/credentials.json
               subPath: credentials.json
+            
+            - name: aws-creds
+              mountPath: /root/.aws/
 
             # Sheepdog creds, secrets defined in helm/sheepdog/templates/deployment.yaml
             - name: sheepdog-dbcreds
@@ -90,7 +103,7 @@ spec:
             - name: useryaml
               mountPath: /creds/user.yaml
               subPath: useryaml
-
+          
             # studies metadata
             - name: studies-mount
               mountPath: /studies
@@ -102,7 +115,7 @@ spec:
           command: ["/bin/bash" ]
           args:
             - "-c"
-            - |
+            - |   
               cat  << EOF >> ~/.bashrc
               export PGDB=`cat /creds/sheepdog-creds/database`
               export PGPASSWORD=`cat /creds/sheepdog-creds/password`
@@ -112,16 +125,20 @@ spec:
               export PGPORT=`cat /creds/sheepdog-creds/port`
               EOF
 
-              mkdir /data_model
-              ln -s /studies /data_model/studies
-              ln -s /output /data_model/output
-              
+              apt-get update
+              apt-get install less
+              aws sts get-caller-identity
+
+              echo "aws s3 cp s3://$S3_BUCKET/$S3_PATH"
+              aws s3 cp "s3://$S3_BUCKET/$S3_PATH" .
+
               echo "Done setting up data_model"
               while true; do sleep 30; done;
+              #while true; do echo "$S3_BUCKET/$S3_PATH"; sleep 10; done; 
 
       {{ if eq .Values.global.deployment "development" }}
       nodeSelector:
-        eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group
+        eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
       {{ else if eq .Values.global.deployment "staging" }}
       nodeSelector:
           eks.amazonaws.com/nodegroup: aced-commons-staging-etl-node-group
