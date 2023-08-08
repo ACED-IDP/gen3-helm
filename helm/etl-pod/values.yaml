@@ -11,6 +11,8 @@ env:
 global:
   environment: default
   ddEnabled: false
+
+  # this chooses what node group to use
   deployment: development
   # as example variables just going to get a small python file
 
@@ -83,10 +85,6 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
-nodeSelector:
-  eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
-
 
 tolerations: []
 

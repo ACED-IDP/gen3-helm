@@ -44,14 +44,6 @@ spec:
         - name: useryaml
           configMap:
             name: useryaml
-        
-        - name: studies-mount
-          hostPath:
-            path: /Users/walsbr/aced/data_model/studies
-
-        - name: output-mount
-          hostPath:
-            path: /Users/walsbr/aced/data_model/output
 
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -103,14 +95,6 @@ spec:
             - name: useryaml
               mountPath: /creds/user.yaml
               subPath: useryaml
-          
-            # studies metadata
-            - name: studies-mount
-              mountPath: /studies
-
-            # studies files
-            - name: output-mount
-              mountPath: /output
 
           command: ["/bin/bash" ]
           args:
@@ -125,6 +109,7 @@ spec:
               export PGPORT=`cat /creds/sheepdog-creds/port`
               EOF
 
+              #this varifies credentials work
               apt-get update
               apt-get install less
               aws sts get-caller-identity
