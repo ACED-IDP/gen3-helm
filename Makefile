@@ -73,13 +73,7 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@kubectl delete configmaps --all
 	@kubectl delete jobs --all
 
-deploy: check-context
-	@[ $(shell readlink Secrets) == "Secrets.$(DEPLOY)" ] || \
-		(printf "\033[1mUnexpected Secrets link\033[0m\n"; \
-		 printf "\033[92mExpected Secrets:\033[0m Secrets.$(DEPLOY)\n"; \
-		 printf "\033[93mActual Secrets:\033[0m   $(shell readlink Secrets)\n"; \
-		 exit 1)
-
+deploy: check-context check-secrets
 	@read -p "Deploy $(DEPLOY)? [y/N]: " sure && \
 		case "$$sure" in \
 			[yY]) true;; \
