@@ -5,6 +5,9 @@
 global:
   
   # -- (map) AWS configuration
+  dbRestoreBucket: aced-development
+  dbRestorePath: meta_graph_load.py
+
   aws:
     enabled: false
     # # -- (map) Credentials for AWS
@@ -106,6 +109,16 @@ aws-es-proxy:
     awsAccessKeyId: ""
     # -- (str) AWS secret access key for aws-es-proxy
     awsSecretAccessKey: ""
+
+etl-pod:
+  # -- (bool) Whether to deploy the etl-pod subchart.
+  enabled: true
+  # -- (map) Docker image information.
+  image:
+    # -- (string) The Docker image repository for the etl-po service.
+    repository:
+    # -- (string) Overrides the image tag whose default is the chart appVersion.
+    tag:
 
 fence:
   # -- (bool) Whether to deploy the fence subchart.
