@@ -445,6 +445,7 @@ Target Backtrack window
 `48 hours`
 
 Log exports
+
 Select the log types to publish to Amazon CloudWatch Logs
 `PostgreSQL log`
 

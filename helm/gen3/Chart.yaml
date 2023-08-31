@@ -27,10 +27,6 @@ dependencies:
 - name: common
   version: "0.1.7"
   repository: file://../common
-- name: etl-pod
-  version: "0.1.0"
-  repository: "file://../etl-pod"
-  condition: etl-pod.enabled
 - name: fence
   version: "0.1.13"
   repository: "file://../fence"
@@ -91,10 +87,7 @@ dependencies:
   version: "0.1.10"
   repository: "file://../wts"
   condition: wts.enabled
-- name: sower
-  version: "0.1.4"
-  repository: "file://../sower"
-  condition: sower.enabled
+
 
 - name: elasticsearch
   version: "0.1.5"

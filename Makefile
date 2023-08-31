@@ -44,7 +44,6 @@ check-secrets:
 	 echo "Changing Secrets link to Secrets.$(DEPLOY)"; \
 	 ln -s Secrets.$(DEPLOY) Secrets)
 
-#development-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-development
 check-context:
 	@$(eval ACTUAL=$(shell kubectl config current-context))
 	@[ $(ACTUAL) == $(CONTEXT) ] || \
@@ -57,9 +56,9 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@$(eval ACTUAL=$(shell kubectl config current-context))
 	@$(eval DEPLOY=$(shell case $(ACTUAL) in \
 		(rancher-desktop) echo "local";; \
-		(*development) 	  echo "development";; \
-		(*staging) 		  echo "staging";; \
-		(*production) 	  echo "production";; \
+		(*development) 		echo "development";; \
+		(*staging) 				echo "staging";; \
+		(*production) 		echo "production";; \
 	esac))
 
 	@read -p "Uninstall $(DEPLOY) deployment? [y/N]: " sure && \
@@ -80,6 +79,7 @@ deploy: check-context check-secrets
 			[yY]) true;; \
 			*) false;; \
 		esac
+
 	@echo "Deploying $(DEPLOY)"
 	@helm upgrade --install $(DEPLOY) ./helm/gen3 \
 		-f Secrets/values.yaml \
