@@ -363,6 +363,9 @@ Backup retention period
 Target Backtrack window
 `48 hours`
 
+Select the log types to publish to Amazon CloudWatch Logs
+`PostgreSQL log`
+
 Log exports
 - `Audit log`
 - `Error log`
