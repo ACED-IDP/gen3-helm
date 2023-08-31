@@ -56,8 +56,7 @@ spec:
       command: ["/bin/bash" ]
       args:
         - "-c"
-        - |
-          
+        - | 
           # Until we fix in helm env, setup well known postgres env variables
           # TODO - set GLOBAL_HOSTNAME to value from values.yaml
           cat  << EOF >> ~/.bashrc
