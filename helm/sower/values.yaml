@@ -187,7 +187,7 @@ sowerConfig:
     action: fhir_import_export
     container:
       name: job-task
-      image: quay.io/ohsu-comp-bio/aced-etl:latest-amd64
+      image: quay.io/ohsu-comp-bio/aced-etl:latest-amd64-4
       pull_policy: Always
       env:
         - name: DICTIONARY_URL
