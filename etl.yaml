@@ -29,7 +29,7 @@ spec:
 
   containers:
     - name: container-configmap
-      image: quay.io/ohsu-comp-bio/aced-etl:latest
+      image: quay.io/ohsu-comp-bio/aced-etl:latest-amd64
       volumeMounts:
         # Gen3 credentials file
         - name: gen3-credentials
@@ -68,6 +68,8 @@ spec:
           export PGPORT=`cat /creds/sheepdog-creds/port`
           EOF
 
+          # echo $REVPROXY_SERVICE_SERVICE_HOST aced-training.compbio.ohsu.edu >> /etc/hosts
+
           # link back to mounted volumes
           ln -s /studies /data_model/studies
           ln -s /output /data_model/output
@@ -84,5 +86,5 @@ spec:
           while true; do sleep 30; done;
 
   # TODO - read nodegroup from values.yaml
-  nodeSelector:
-        eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
+  #nodeSelector:
+        #eks.amazonaws.com/nodegroup: aced-commons-development-etl-node-group-large
