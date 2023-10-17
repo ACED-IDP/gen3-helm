@@ -29,7 +29,7 @@ spec:
 
   containers:
     - name: container-configmap
-      image: quay.io/ohsu-comp-bio/aced-etl:latest-amd64
+      image: quay.io/ohsu-comp-bio/aced-etl:latest
       volumeMounts:
         # Gen3 credentials file
         - name: gen3-credentials

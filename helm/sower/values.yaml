@@ -182,61 +182,6 @@ strategy:
 # -- (bool) Automount the default service account token
 automountServiceAccountToken: true
 
-sowerConfig:
-  - name: fhir-import-export
-    action: fhir_import_export
-    container:
-      name: job-task
-      image: quay.io/ohsu-comp-bio/aced-etl:latest-amd64-4
-      pull_policy: Always
-      env:
-        - name: DICTIONARY_URL
-          valueFrom:
-            configMapKeyRef:
-              name: manifest-global
-              key: dictionary_url
-        - name: GEN3_HOSTNAME
-          valueFrom:
-            configMapKeyRef:
-              name: manifest-global
-              key: hostname
-        - name: PGHOST
-          valueFrom:
-            secretKeyRef:
-              name: sheepdog-dbcreds
-              key: host
-              optional: false
-        - name: PGUSER
-          valueFrom:
-            secretKeyRef:
-              name: sheepdog-dbcreds
-              key: username
-              optional: false
-        - name: PGPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: sheepdog-dbcreds
-              key: password
-              optional: false
-        - name: PGDB
-          valueFrom:
-            secretKeyRef:
-              name: sheepdog-dbcreds
-              key: database
-              optional: false
-        - name: DBREADY
-          valueFrom:
-            secretKeyRef:
-              name: sheepdog-dbcreds
-              key: dbcreated
-              optional: false
-      volumeMounts: []
-      cpu-limit: '1'
-      memory-limit: 1Gi
-    volumes: []
-    restart_policy: Never
-
-
 # -- (map) Service account to use or create.
 serviceAccount:
   # -- (bool) Specifies whether a service account should be created.
