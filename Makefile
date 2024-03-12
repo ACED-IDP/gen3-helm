@@ -56,18 +56,16 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@$(eval ACTUAL=$(shell kubectl config current-context))
 	@$(eval DEPLOY=$(shell case $(ACTUAL) in \
 		(rancher-desktop) echo "local";; \
-		(*development) 		echo "development";; \
-		(*staging) 				echo "staging";; \
-		(*production) 		echo "production";; \
-	esac))
-
-	@read -p "Uninstall $(DEPLOY) deployment? [y/N]: " sure && \
-		case "$$sure" in \
+		(*development) 	  echo "development";; \
+		(*staging)        echo "staging";; \
+		(*production)     echo "production";; \
+		esac)) 
+	@read -p "Uninstall $(DEPLOY) deployment? [y/N]: " confirm && \
+		case "$$confirm" in \
 			[yY]) true;; \
 			*) false;; \
-		esac
+		esac 
 	@echo "Uninstalling $(DEPLOY)"
-
 	@-helm uninstall $(DEPLOY)
 	@kubectl delete secrets --all
 	@kubectl delete configmaps --all
@@ -90,9 +88,8 @@ deploy: check-context check-secrets
 # Create a timestamped Secrets archive and copy to $HOME/OneDrive/ACED-deployments
 zip: 
 	@$(eval TIMESTAMP="$(DEPLOY)-$(shell date +"%Y-%m-%dT%H-%M-%S%z")")
-	echo $(TIMESTAMP)
-	@zip Secrets-$(TIMESTAMP).zip Secrets
-	@cp Secrets-$(TIMESTAMP).zip $(HOME)/OneDrive/ACED-deployments
+	@zip -r Secrets-$(TIMESTAMP).zip Secrets
+	@mv Secrets-$(TIMESTAMP).zip $(HOME)/OneDrive/ACED-deployments/Secrets-$(DEPLOY)/
 
 # https://gist.github.com/prwhite/8168133
 help:	## Show this help message
