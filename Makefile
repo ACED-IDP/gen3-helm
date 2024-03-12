@@ -79,11 +79,20 @@ deploy: check-context check-secrets
 		esac
 
 	@echo "Deploying $(DEPLOY)"
-	@helm upgrade --install $(DEPLOY) ./helm/gen3 \
-		-f Secrets/values.yaml \
-		-f Secrets/user.yaml \
-		-f Secrets/fence-config.yaml \
-		-f Secrets/TLS/gen3-certs.yaml
+	@if [ "$(DEPLOY)" = "local" ]; then \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
+			-f Secrets/values.yaml \
+			-f Secrets/user.yaml \
+			-f Secrets/fence-config.yaml \
+			-f Secrets/TLS/gen3-certs.yaml \
+			-f Secrets/gitops.yaml \
+			-f Secrets/logo.yaml; \
+	else \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
+			-f Secrets/values.yaml \
+			-f Secrets/user.yaml \
+			-f Secrets/fence-config.yaml; \
+	fi
 
 # Create a timestamped Secrets archive and copy to $HOME/OneDrive/ACED-deployments
 zip: 
