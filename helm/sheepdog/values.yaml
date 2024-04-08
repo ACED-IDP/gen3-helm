@@ -185,7 +185,7 @@ authNamespace: default
 volumeMounts:
   - name: "config-volume"
     readOnly: true
-    mountPath: "/var/www/sheepdog/settings.py"
+    mountPath: "/var/www/sheepdog/wsgi.py"
     subPath: "wsgi.py"
 
 # -- (map) Resource requests and limits for the containers in the pod
