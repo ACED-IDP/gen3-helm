@@ -301,14 +301,18 @@ def _get_token(username: str, password: str, otp: int) -> str:
     except requests.exceptions.RequestException as e:
         response_body = e.response.json() if e.response else None
         error_message = response_body.get("error") if response_body else str(e)
-        if "Failed to resolve 'secretserver.ohsu.edu'" in str(e):
+
+        if "Failed to resolve 'secretserver.ohsu.edu'" in error_message:
             print("You must be connected to the secure network in order to access secretserver.ohsu.edu")
-            exit(1)
-        elif "400 Client Error: Bad Request for url: https://secretserver.ohsu.edu/secretserver/oauth2/token" in str(e):
+        elif "400 Client Error: Bad Request for url: https://secretserver.ohsu.edu/secretserver/oauth2/token" in error_message:
             print("Invalid login credentials.")
+        elif "403" in error_message:
+            print(error_message)
+            print("User either does not have access or has had too many failed attempts")
         else:
             print(f"ERROR: {error_message}")
-            exit(1)
+        
+        exit(1)
 
 
 if __name__ == '__main__':
