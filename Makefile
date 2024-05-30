@@ -66,7 +66,7 @@ check-venv:
 create-venv:
 	@python3 -m venv venv; \
 	source venv/bin/activate; \
-	pip install click requests urllib3; \
+	OPENSSL_CONF=openssl.cnf pip install click requests urllib3; \
 	echo "New venv created with required packages installed."; \
 	echo "$(pwd)/venv";
 
@@ -106,8 +106,7 @@ deploy: check-context check-secrets check-venv
 		-f Secrets/user.yaml \
 		-f Secrets/fence-config.yaml \
 		-f Secrets/TLS/gen3-certs.yaml
-
-
+	
 	$(VENV)/bin/python $(SCRIPT) post $(DEPLOY);
 
 ENV :=
