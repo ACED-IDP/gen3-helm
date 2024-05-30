@@ -34,7 +34,8 @@ def cli():
 class CustomHttpAdapter (requests.adapters.HTTPAdapter):
     """Python 3.12 uses openSSL v3 which doesn't allow for
         unsafe legacy renegotiation. Secretserver endpoint is
-        making me have to use unsafe legacy renegotiation"""
+        making me have to use unsafe legacy renegotiation
+        see https://stackoverflow.com/questions/71603314/ssl-error-unsafe-legacy-renegotiation-disabled/73519818#73519818"""
 
     def __init__(self, ssl_context=None, **kwargs):
         self.ssl_context = ssl_context
@@ -243,7 +244,6 @@ not exist")
                                data={'fileName': f"{env_dir}.zip"},
                                headers=headers, files=files)
 
-        print(response.content)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         response_body = e.response.json() if e.response else None

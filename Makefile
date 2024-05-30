@@ -66,7 +66,7 @@ check-venv:
 create-venv:
 	@python3 -m venv venv; \
 	source venv/bin/activate; \
-	OPENSSL_CONF=openssl.cnf pip install click requests urllib3; \
+	pip install click requests urllib3; \
 	echo "New venv created with required packages installed."; \
 	echo "$(pwd)/venv";
 
