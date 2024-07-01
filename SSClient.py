@@ -70,8 +70,7 @@ def conv_shorthand(env: str) -> str:
 
 
 def match_env_with_id(env: str, id: Optional[int]):
-    """Secret Server expects an 'id' in order to get data from a secret.
-       To do this you need to"""
+    "Associates environment secret with its SS ID"
 
     conv_env = conv_shorthand(env)
     prefix = "Secrets-"

@@ -129,20 +129,20 @@ help:	## Show this help message
 VENV := venv
 SCRIPT := SSClient.py
 
-# eg: fetch-secrets DEPLOY=local or development, etc
+# eg: fetch-secrets ENV=local or development, etc
 fetch-secrets: check-venv
-	@echo "Fetching $(DEPLOY)"
-	$(VENV)/bin/python $(SCRIPT) get $(DEPLOY);
+	@echo "Fetching $(ENV)"
+	$(VENV)/bin/python $(SCRIPT) get $(ENV);
 
 
-# eg: push-secrets DEPLOY=local or local_test or development, etc
+# eg: push-secrets ENV=local or local_test or development, etc
 push-secrets: check-venv
-	@read -p "Update Secret Server secrets for $(DEPLOY)? [y/N]: " sure && \
+	@read -p "Update Secret Server secrets for $(ENV)? [y/N]: " sure && \
 		case "$$sure" in \
 			[yY]) true;; \
 			*) echo "secrets were not updated in SS" && false;; \
 		esac
-	$(VENV)/bin/python $(SCRIPT) post "$(DEPLOY)"
+	$(VENV)/bin/python $(SCRIPT) post "$(ENV)"
 
 		
 list-secrets: check-venv
