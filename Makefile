@@ -9,17 +9,17 @@ local-context: change-context # Change to the Local context
 local local-context: CONTEXT=rancher-desktop
 
 development: DEPLOY=development
-development: development-context deploy zip ## Deploy the Development commons
+development: development-context deploy ## Deploy the Development commons
 development-context: change-context # Change to the Development contextt
 development development-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-development
 
 staging: DEPLOY=staging
-staging: check-context deploy zip ## Deploy the Staging commons
+staging: check-context deploy ## Deploy the Staging commons
 staging-context: change-context # Change to the Staging context
 staging staging-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-staging
 
 production: DEPLOY=production
-production: check-context deploy zip ## Deploy the Production commons
+production: check-context deploy ## Deploy the Production commons
 production-context: change-context  # Change to the Production context
 production production-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-production
 
@@ -110,12 +110,6 @@ deploy: check-context check-secrets
 		-f Secrets/user.yaml \
 		-f Secrets/fence-config.yaml; \
 	fi
-
-# Create a timestamped Secrets archive and copy to $HOME/OneDrive/ACED-deployments
-zip:
-	@$(eval TIMESTAMP="$(DEPLOY)-$(shell date +"%Y-%m-%dT%H-%M-%S%z")")
-	@zip Secrets-$(TIMESTAMP).zip Secrets
-	@cp Secrets-$(TIMESTAMP).zip $(HOME)/OneDrive/ACED-deployments
 
 # https://gist.github.com/prwhite/8168133
 help:	## Show this help message
