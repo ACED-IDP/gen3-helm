@@ -13,3 +13,5 @@ _sample-*/
 credentials-templates/
 fence-config.yaml
 user.yaml
+Secrets-*/
+venv*/
