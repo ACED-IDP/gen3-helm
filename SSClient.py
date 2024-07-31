@@ -1,3 +1,4 @@
+from typing import Optional
 import click
 import requests
 import os
@@ -34,7 +35,8 @@ def cli():
 class CustomHttpAdapter (requests.adapters.HTTPAdapter):
     """Python 3.12 uses openSSL v3 which doesn't allow for
         unsafe legacy renegotiation. Secretserver endpoint is
-        making me have to use unsafe legacy renegotiation"""
+        making me have to use unsafe legacy renegotiation
+        see https://stackoverflow.com/questions/71603314/ssl-error-unsafe-legacy-renegotiation-disabled/73519818#73519818"""
 
     def __init__(self, ssl_context=None, **kwargs):
         self.ssl_context = ssl_context
@@ -65,9 +67,8 @@ def conv_shorthand(env: str) -> str:
     return env
 
 
-def match_env_with_id(env: str, id: int):
-    """Secret Server expects an 'id' in order to get data from a secret.
-       To do this you need to"""
+def match_env_with_id(env: str, id: Optional[int]):
+    "Associates environment secret with its SS ID"
 
     conv_env = conv_shorthand(env)
     prefix = "Secrets-"
@@ -279,13 +280,12 @@ def _update_secret(env: str, username: str, password: str, id: int, otp: int):
         else:
             raise FileNotFoundError(f"Secrets directory: {env_dir}.zip does\
 not exist")
-
+        
+        # upload secrets
         files = {'file': (os.path.basename(f"{env_dir}.zip"), data)}
         response = session.put(f"{OHSU_SECRET_SERVER_ENDPOINT}/api/v1/secrets/{id}/fields/file",
                                data={'fileName': f"{env_dir}.zip"},
                                headers=headers, files=files)
-
-        print(response.content)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         response_body = e.response.json() if e.response else None
@@ -343,14 +343,18 @@ def _get_token(username: str, password: str, otp: int) -> str:
     except requests.exceptions.RequestException as e:
         response_body = e.response.json() if e.response else None
         error_message = response_body.get("error") if response_body else str(e)
-        if "Failed to resolve 'secretserver.ohsu.edu'" in str(e):
+
+        if "Failed to resolve 'secretserver.ohsu.edu'" in error_message:
             print("You must be connected to the secure network in order to access secretserver.ohsu.edu")
-            exit(1)
-        elif "400 Client Error: Bad Request for url: https://secretserver.ohsu.edu/secretserver/oauth2/token" in str(e):
+        elif "400 Client Error: Bad Request for url: https://secretserver.ohsu.edu/secretserver/oauth2/token" in error_message:
             print("Invalid login credentials.")
+        elif "403" in error_message:
+            print(error_message)
+            print("User either does not have access or has had too many failed attempts")
         else:
             print(f"ERROR: {error_message}")
-            exit(1)
+        
+        exit(1)
 
 
 if __name__ == '__main__':
