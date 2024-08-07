@@ -148,7 +148,7 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 10 }}
           {{- end }}
-          {{- with .Values.resources }}
+          {{- with .Values.initResources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
