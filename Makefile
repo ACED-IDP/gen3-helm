@@ -2,24 +2,24 @@ all: help
 
 update: ## Update from the local helm chart repository
 	@helm dependency update ./helm/gen3
-	
+
 local: DEPLOY=local
 local: local-context deploy ## Deploy the Local commons
 local-context: change-context # Change to the Local context
 local local-context: CONTEXT=rancher-desktop
 
 development: DEPLOY=development
-development: development-context deploy zip ## Deploy the Development commons
+development: development-context deploy ## Deploy the Development commons
 development-context: change-context # Change to the Development contextt
 development development-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-development
 
 staging: DEPLOY=staging
-staging: check-context deploy zip ## Deploy the Staging commons
+staging: check-context deploy ## Deploy the Staging commons
 staging-context: change-context # Change to the Staging context
 staging staging-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-staging
 
 production: DEPLOY=production
-production: check-context deploy zip ## Deploy the Production commons
+production: check-context deploy ## Deploy the Production commons
 production-context: change-context  # Change to the Production context
 production production-context: CONTEXT=arn:aws:eks:us-west-2:119548034047:cluster/aced-commons-production
 
@@ -52,6 +52,23 @@ check-context:
 		 printf "\033[93mActual context:\033[0m   $(ACTUAL)\n"; \
 		 exit 1)
 
+check-venv:
+	@if [ ! -d "venv" ]; then \
+		$(MAKE) create-venv; \
+	elif [ -z "$$(source venv/bin/activate && python -c 'import pkgutil; exit(not all(pkgutil.find_loader(pkg) for pkg in ["click", "requests", "urllib3"]))')" ]; then \
+		echo "Existing venv found with required packages installed."; \
+		echo "$(pwd)/venv"; \
+	else \
+		$(MAKE) create-venv; \
+	fi
+
+create-venv:
+	@python3 -m venv venv; \
+	source venv/bin/activate; \
+	pip install click requests urllib3; \
+	echo "New venv created with required packages installed."; \
+	echo "$(pwd)/venv";
+
 clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@$(eval ACTUAL=$(shell kubectl config current-context))
 	@$(eval DEPLOY=$(shell case $(ACTUAL) in \
@@ -74,18 +91,24 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 	@kubectl delete jobs --all
 
 deploy: check-context check-secrets
+	@read -p "Deploy $(DEPLOY)? [y/N]: " sure && \
+		case "$$sure" in \
+			[yY]) true;; \
+			*) echo "exiting..." && false;; \
+		esac
 	@echo "Deploying $(DEPLOY)"
-	@helm upgrade --install $(DEPLOY) ./helm/gen3 \
+	@if [ "$(DEPLOY)" = "local" ]; then \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
 		-f Secrets/values.yaml \
 		-f Secrets/user.yaml \
-		-f Secrets/fence-config.yaml
-
-# Create a timestamped Secrets archive and copy to $HOME/OneDrive/ACED-deployments
-zip: 
-	@$(eval TIMESTAMP="$(DEPLOY)-$(shell date +"%Y-%m-%dT%H-%M-%S%z")")
-	echo $(TIMESTAMP)
-	@zip Secrets-$(TIMESTAMP).zip Secrets
-	@cp Secrets-$(TIMESTAMP).zip $(HOME)/OneDrive/ACED-deployments
+		-f Secrets/fence-config.yaml \
+		-f Secrets/TLS/gen3-certs.yaml; \
+	else \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
+		-f Secrets/values.yaml \
+		-f Secrets/user.yaml \
+		-f Secrets/fence-config.yaml; \
+	fi
 
 # https://gist.github.com/prwhite/8168133
 help:	## Show this help message
@@ -93,3 +116,27 @@ help:	## Show this help message
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m\033[1m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: debug deploy clean check-clean zip help change-context
+
+#################
+# SECRET SERVER #
+#################
+# venv will be created if it doesn't exist
+VENV := venv
+SCRIPT := SSClient.py
+
+# eg: fetch-secrets ENV=local or development, etc
+fetch-secrets: check-venv
+	@echo "Fetching $(ENV)"
+	$(VENV)/bin/python $(SCRIPT) get $(ENV);
+
+# eg: push-secrets ENV=local or local_test or development, etc
+push-secrets: check-venv
+	@read -p "Update Secret Server secrets for $(ENV)? [y/N]: " sure && \
+		case "$$sure" in \
+			[yY]) true;; \
+			*) echo "secrets were not updated in SS" && false;; \
+		esac
+	$(VENV)/bin/python $(SCRIPT) post "$(ENV)"
+
+list-secrets: check-venv
+	$(VENV)/bin/python $(SCRIPT) list;
