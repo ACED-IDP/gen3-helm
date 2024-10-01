@@ -67,6 +67,10 @@ dependencies:
   version: 0.1.12
   repository: "file://../metadata"
   condition: metadata.enabled
+- name: peregrine
+  version: 0.1.13
+  repository: "file://../peregrine"
+  condition: peregrine.enabled
 - name: mongodb
   version: "13.16.3"
   repository: "file://../mongodb"
@@ -83,6 +87,10 @@ dependencies:
   version: 0.1.14
   repository: "file://../revproxy"
   condition: revproxy.enabled
+- name: sheepdog
+  version: 0.1.14
+  repository: "file://../sheepdog"
+  condition: sheepdog.enabled
 - name: ssjdispatcher
   version: 0.1.9
   repository: "file://../ssjdispatcher"
