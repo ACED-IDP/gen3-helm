@@ -103,6 +103,10 @@ dependencies:
   version: 11.9.13
   repository: "https://charts.bitnami.com/bitnami"
   condition: global.dev
+- name: image-viewer
+  version: 0.1.0
+  repository: "file://../image-viewer"
+  condition: image-viewer.enabled
 
 # A chart can be either an 'application' or a 'library' chart.
 #
