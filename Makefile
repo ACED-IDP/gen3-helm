@@ -103,19 +103,19 @@ clean: check-clean ## Delete all existing deployments, configmaps, and secrets
 deploy: check-context check-secrets
 	@echo "Deploying $(DEPLOY)"
 	@if [ "$(DEPLOY)" = "local" ]; then \
-		helm upgrade --install "$(DEPLOY)" ./helm/gen3 \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
 		-f Secrets/values.yaml \
 		-f Secrets/user.yaml \
 		-f Secrets/fence-config.yaml \
 		-f Secrets/TLS/gen3-certs.yaml; \
 	elif [ "$(DEPLOY)" = "cbds-dev" ]; then \
-		helm upgrade --install "local" ./helm/gen3 \
+		helm upgrade --install local ./helm/gen3 \
 		-f Secrets/values.yaml \
 		-f Secrets/user.yaml \
 		-f Secrets/fence-config.yaml \
-		-f Secrets/gen3-certs.yaml; \
+		-f Secrets/TLS/gen3-certs.yaml; \
 	else \
-		helm upgrade --install "$(DEPLOY_NEW)" ./helm/gen3 \
+		helm upgrade --install $(DEPLOY) ./helm/gen3 \
 		-f Secrets/values.yaml \
 		-f Secrets/user.yaml \
 		-f Secrets/fence-config.yaml; \
