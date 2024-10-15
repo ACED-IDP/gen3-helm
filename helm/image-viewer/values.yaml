@@ -61,3 +61,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  BASE_URL: "/aviator/?image_url="
+
