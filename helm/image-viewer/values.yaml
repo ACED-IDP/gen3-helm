@@ -6,8 +6,10 @@ replicaCount: 1
 serviceName: image-viewer-service
 
 image:
-  repository: gen3-image-viewer
+  repository: quay.io/ohsu-comp-bio/gen3-image-viewer
   pullPolicy: Always
+  tag: "latest"
+
 
 imagePullSecrets: []
 nameOverride: ""
