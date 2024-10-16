@@ -1,15 +1,14 @@
-# Default values for image-viewer.
+# Default values for viv.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-serviceName: image-viewer-service
+serviceName: viv-service
 
 image:
-  repository: quay.io/ohsu-comp-bio/gen3-image-viewer
+  repository: quay.io/ohsu-comp-bio/viv
   pullPolicy: Always
   tag: "latest"
-
 
 imagePullSecrets: []
 nameOverride: ""
@@ -61,7 +60,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-env:
-  BASE_URL: "/aviator/?image_url="
-

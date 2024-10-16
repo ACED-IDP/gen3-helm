@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: image-viewer-deployment
+  name: viv-deployment
   labels:
-    {{- include "image-viewer.labels" . | nindent 4 }}
+    {{- include "viv.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "image-viewer.selectorLabels" . | nindent 6 }}
+      {{- include "viv.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,19 +18,16 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "image-viewer.selectorLabels" . | nindent 8 }}
+        {{- include "viv.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "image-viewer.serviceAccountName" . }}
+      serviceAccountName: {{ include "viv.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      volumes:
-        - name: mongo-config-volume
-          configMap:
-            name: image-viewer-values
+      volumes: []
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -43,14 +40,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /_health
+              path: /
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 60
             timeoutSeconds: 30
           readinessProbe:
             httpGet:
-              path: /_health
+              path: /
               port: 8000
             initialDelaySeconds: 10
           resources:
@@ -59,7 +56,7 @@ spec:
             - "/bin/sh"
             - "-c"
             - >
-              uvicorn image_viewer.app:app --host 0.0.0.0 --port {{ .Values.service.port }} --reload
+              pnpm dev --host 0.0.0.0 --port {{ .Values.service.port }}  --base /aviator
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

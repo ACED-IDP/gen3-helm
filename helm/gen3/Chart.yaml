@@ -107,6 +107,10 @@ dependencies:
   version: 0.1.0
   repository: "file://../image-viewer"
   condition: image-viewer.enabled
+- name: viv
+  version: 0.1.0
+  repository: "file://../viv"
+  condition: viv.enabled
 
 # A chart can be either an 'application' or a 'library' chart.
 #
