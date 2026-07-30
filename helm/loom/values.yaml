@@ -64,6 +64,11 @@ config:
       request_timeout: 5s
       cache_ttl: 30s
 
+# Empty uses files/default-dataframer.json. Override with
+# --set-file dataframer.recipe=/path/to/recipe.json.
+dataframer:
+  recipe: ""
+
 auth:
   basic:
     # Optional Secret for standalone mode. The server reads these via
@@ -107,10 +112,12 @@ clickstack:
   resources:
     requests:
       cpu: 250m
-      memory: 256Mi
+      # ClickHouse 25.x commonly idles near 1 GiB RSS before a wide dataframe
+      # insert. Keep enough requested headroom for stable local scheduling.
+      memory: 512Mi
     limits:
       cpu: 1
-      memory: 1Gi
+      memory: 2Gi
   auth:
     username: default
     password: loom-clickhouse

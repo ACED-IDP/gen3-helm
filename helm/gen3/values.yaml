@@ -255,6 +255,16 @@ syfon:
 
 loom:
   enabled: true
+  # ClickHouse needs headroom for wide dataframe materializations.
+  # Override per environment when larger loads require it.
+  clickstack:
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 4Gi
   server:
     clickhouse:
       # -- (bool) Whether Loom should connect to ClickHouse.

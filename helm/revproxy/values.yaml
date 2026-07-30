@@ -148,6 +148,9 @@ ingress:
   className: ""
   # -- (map) Annotations to add to the ingress.
   annotations:
+    # The outer ingress must accept the same large uploads as revproxy's
+    # service-specific locations; otherwise it rejects them before revproxy.
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "512k"

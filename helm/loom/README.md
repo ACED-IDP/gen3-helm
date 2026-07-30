@@ -16,14 +16,47 @@ kind load docker-image loom:dev --name loom
 helm upgrade --install loom ./helm/loom \
   --namespace loom --create-namespace \
   -f ./helm/loom/values-local.yaml
-kubectl -n loom rollout status deployment/loom-loom --timeout=5m
-kubectl -n loom port-forward svc/loom-loom 8080:8080
+kubectl -n loom rollout status deployment/loom-deployment --timeout=5m
+kubectl -n loom port-forward svc/loom 8080:8080
 curl http://127.0.0.1:8080/healthz
 ```
 
 The local values use `--no-auth`, an ephemeral ArangoDB, and an ephemeral
 single-node ClickHouse. Set `clickstack.persistence.enabled: true` when the
 ClickHouse data must survive pod replacement.
+
+To increase ClickHouse capacity for wide dataframe loads, override the local
+resource values before upgrading:
+
+```bash
+helm upgrade --install loom ./helm/loom \
+  --namespace loom --create-namespace \
+  -f ./helm/loom/values-local.yaml \
+  --set clickstack.resources.requests.memory=4Gi \
+  --set clickstack.resources.limits.memory=8Gi
+```
+
+The chart applies `clickstack.resources` directly to the ClickHouse
+StatefulSet. The pod limit must be increased before ClickHouse can use the
+additional memory.
+
+When ClickHouse is enabled, the chart mounts
+[`files/default-dataframer.json`](files/default-dataframer.json) at
+`/etc/loom/dataframer.json` and sets
+`server.dataframer.recipe` to that path. Override the recipe without rebuilding
+Loom:
+
+```bash
+helm upgrade --install loom ./helm/loom \
+  --namespace loom --create-namespace \
+  -f ./helm/loom/values-local.yaml \
+  --set-file dataframer.recipe=/path/to/dataframer.json
+```
+
+The recipe is omitted when `server.clickhouse.enabled` is false. Loom requires
+the configured recipe when ClickHouse is enabled and fails startup if it is
+missing or invalid.
+
 Load a resource file through
 the existing import API after port-forwarding, for example:
 
