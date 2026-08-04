@@ -18,7 +18,7 @@ helm upgrade --install loom ./helm/loom \
   -f ./helm/loom/values-local.yaml
 kubectl -n loom rollout status deployment/loom-deployment --timeout=5m
 kubectl -n loom port-forward svc/loom 8080:8080
-curl http://127.0.0.1:8080/healthz
+curl http://127.0.0.1:8080/health
 ```
 
 The local values use `--no-auth`, an ephemeral ArangoDB, and an ephemeral
@@ -72,8 +72,7 @@ For a real cluster, use a managed Loom image registry. If the Loom server is
 configured to use ClickHouse, set `server.clickhouse.url` (or
 `server.clickhouse.host` and `port`) and set `server.waitForBackends` false
 unless the endpoint is reachable from a BusyBox init container. The chart's
-liveness/readiness probes use `/healthz`; the endpoint is process-level health
-and does not hide backend connection failures during startup.
+liveness/readiness probes use `/health`; dependency checks are cached for 30 seconds.
 
 To run Loom without ClickHouse, set `server.clickhouse.enabled: false`. The
 chart then emits an empty ClickHouse URL and omits the ClickHouse wait
