@@ -93,4 +93,3 @@ A Helm chart for the gen3 frontend framework
 | strategy.rollingUpdate.maxSurge | int | `2` | Number of additional replicas to add during rollout. |
 | strategy.rollingUpdate.maxUnavailable | int | `"25%"` | Maximum amount of pods that can be unavailable during the update. |
 | tolerations | list | `[]` | Tolerations to apply to the pod |
-
