@@ -9,7 +9,6 @@
       "rowGrain": "file",
       "collisionPolicy": "overwrite",
       "fields": [
-        {"name": "resource", "expr": {"document": {"context": "root"}}},
         {"name": "id", "expr": {"select": "root.id"}},
         {"name": "identifier", "expr": {"call": "first", "args": [{"select": "root.identifier[].value"}]}},
         {"name": "status", "expr": {"select": "root.status"}},
