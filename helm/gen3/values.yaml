@@ -131,6 +131,10 @@ frontend-framework:
     repository: "quay.io/cdis/frontend-framework"
     # -- (string) Overrides the image tag whose default is the chart appVersion.
     tag: "develop"
+  # -- (map) Environment variables for server-side frontend requests.
+  env:
+    # -- (string) Internal reverse-proxy URL used for server-side requests.
+    GEN3_INTERNAL_API: "http://revproxy-service"
 
 # -- (map) Configurations for Funnel chart.
 funnel:

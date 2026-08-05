@@ -74,8 +74,10 @@ Helm chart to deploy Gen3 Data Commons
 | fence.usersync.syncFromDbgap | bool | `false` | Whether to sync data from dbGaP. |
 | fence.usersync.userYamlS3Path | string | `"s3://cdis-gen3-users/helm-test/user.yaml"` | Path to the user.yaml file in S3. |
 | fence.usersync.usersync | bool | `false` | Whether to run Fence usersync or not. |
-| frontend-framework | map | `{"enabled":true,"image":{"repository":"quay.io/cdis/frontend-framework","tag":"develop"}}` | Configurations for frontend-framework chart. |
+| frontend-framework | map | `{"enabled":true,"env":{"GEN3_INTERNAL_API":"http://revproxy-service"},"image":{"repository":"quay.io/cdis/frontend-framework","tag":"develop"}}` | Configurations for frontend-framework chart. |
 | frontend-framework.enabled | bool | `true` | Whether to deploy the frontend-framework subchart. |
+| frontend-framework.env | map | `{"GEN3_INTERNAL_API":"http://revproxy-service"}` | Environment variables for server-side frontend requests. |
+| frontend-framework.env.GEN3_INTERNAL_API | string | `"http://revproxy-service"` | Internal reverse-proxy URL used for server-side requests. |
 | frontend-framework.image | map | `{"repository":"quay.io/cdis/frontend-framework","tag":"develop"}` | Docker image information. |
 | frontend-framework.image.repository | string | `"quay.io/cdis/frontend-framework"` | The Docker image repository for the frontend-framework. |
 | frontend-framework.image.tag | string | `"develop"` | Overrides the image tag whose default is the chart appVersion. |
