@@ -35,6 +35,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" .Values.image.repository (default .Chart.AppVersion .Values.image.tag) }}
 {{- end }}
 
+{{- define "loom.arangoImage" -}}
+{{- printf "%s:%s" .Values.arango.image.repository .Values.arango.image.tag }}
+{{- end }}
+
 {{- define "loom.arangoURL" -}}
 {{- if .Values.server.arango.url -}}
 {{- .Values.server.arango.url -}}

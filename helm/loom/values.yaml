@@ -98,7 +98,10 @@ tolerations: []
 affinity: {}
 
 arango:
-  image: arangodb:3.12
+  image:
+    repository: arangodb
+    tag: "3.12"
+    pullPolicy: IfNotPresent
   noAuth: true
 
 clickstack:

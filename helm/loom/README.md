@@ -40,6 +40,18 @@ The chart applies `clickstack.resources` directly to the ClickHouse
 StatefulSet. The pod limit must be increased before ClickHouse can use the
 additional memory.
 
+The bundled ArangoDB defaults to `arangodb:3.12`. Override its image without
+changing the Loom image:
+
+```yaml
+loom:
+  arango:
+    image:
+      repository: quay.io/ohsu-comp-bio/arangodb-community
+      tag: your-tag
+      pullPolicy: Always
+```
+
 When ClickHouse is enabled, the chart mounts
 [`files/default-dataframer.json`](files/default-dataframer.json) at
 `/etc/loom/dataframer.json` and sets

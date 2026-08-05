@@ -19,7 +19,8 @@ spec:
     spec:
       containers:
         - name: arangodb
-          image: {{ .Values.arango.image | quote }}
+          image: {{ include "loom.arangoImage" . | quote }}
+          imagePullPolicy: {{ .Values.arango.image.pullPolicy }}
           env:
             - name: ARANGO_NO_AUTH
               value: {{ ternary "1" "0" .Values.arango.noAuth | quote }}
