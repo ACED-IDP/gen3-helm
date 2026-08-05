@@ -1,7 +1,7 @@
 {
   "recipeSchemaVersion": 1,
   "name": "calypr-meta-default",
-  "translationVersion": "gen3-util-development-d461f11c7f0ccb078128349ccffd377e4014b62a-patient-compat",
+  "translationVersion": "gen3-util-development-d461f11c7f0ccb078128349ccffd377e4014b62a-explicit-attachment-compat",
   "outputs": [
     {
       "name": "DocumentReference",
@@ -9,17 +9,23 @@
       "rowGrain": "file",
       "collisionPolicy": "overwrite",
       "fields": [
+        {"name": "resource", "expr": {"document": {"context": "root"}}},
         {"name": "id", "expr": {"select": "root.id"}},
         {"name": "identifier", "expr": {"call": "first", "args": [{"select": "root.identifier[].value"}]}},
         {"name": "status", "expr": {"select": "root.status"}},
         {"name": "subject", "expr": {"call": "reference_id", "args": [{"select": "root.subject.reference"}]}},
-        {"name": "based_on", "expr": {"call": "all", "args": [{"select": "root.basedOn[].reference"}]}}
+        {"name": "based_on", "expr": {"call": "all", "args": [{"select": "root.basedOn[].reference"}]}},
+        {"name": "contentType", "expr": {"select": "root.content[].attachment.contentType"}, "valueMode": "FIRST"},
+        {"name": "url", "expr": {"select": "root.content[].attachment.url"}, "valueMode": "FIRST"},
+        {"name": "size", "expr": {"select": "root.content[].attachment.size"}, "valueMode": "FIRST"},
+        {"name": "hash", "expr": {"select": "root.content[].attachment.hash"}, "valueMode": "FIRST"},
+        {"name": "title", "expr": {"select": "root.content[].attachment.title"}, "valueMode": "FIRST"}
       ],
-      "catalogProjections": [{"name": "populated_fields", "includePaths": ["*"], "kinds": ["scalar"], "naming": "PATH", "valueMode": "FIRST", "maxColumns": 256}],
       "dynamicColumns": [
-        {"name": "identifier_by_system", "source": {"select": "root.identifier[]"}, "key": {"select": "item.system"}, "value": {"select": "item.value"}, "maxColumns": 64},
-        {"name": "extension_by_url", "source": {"select": "root.extension[]"}, "key": {"select": "item.url"}, "value": {"call": "coalesce_string", "args": [{"select": "item.valueString"}, {"select": "item.valueCode"}, {"select": "item.valueInteger"}, {"select": "item.valueDecimal"}, {"select": "item.valueBoolean"}, {"select": "item.valueDate"}, {"select": "item.valueDateTime"}]}, "maxColumns": 128},
-        {"name": "category_by_code", "source": {"select": "root.category[].coding[]"}, "key": {"select": "item.code"}, "value": {"select": "item.display"}, "maxColumns": 256}
+        {"name": "legacy_identifier_keys", "columnPrefix": "", "source": {"select": "root.identifier[]"}, "key": {"call": "last_segment", "args": [{"select": "item.system"}]}, "value": {"select": "item.value"}, "maxColumns": 64},
+        {"name": "legacy_extension_keys", "columnPrefix": "", "source": {"select": "root.extension[]"}, "key": {"call": "last_segment", "args": [{"select": "item.url"}]}, "value": {"call": "coalesce_string", "args": [{"select": "item.valueString"}, {"select": "item.valueUrl"}, {"select": "item.valueCode"}, {"select": "item.valueInteger"}, {"select": "item.valueDecimal"}, {"select": "item.valueBoolean"}, {"select": "item.valueDate"}, {"select": "item.valueDateTime"}]}, "maxColumns": 128},
+        {"name": "legacy_category_keys", "columnPrefix": "", "source": {"select": "root.category[].coding[]"}, "key": {"call": "last_segment", "args": [{"select": "item.system"}]}, "value": {"select": "item.display"}, "maxColumns": 256},
+        {"name": "attachment_extension_keys", "columnPrefix": "", "source": {"select": "root.content[].attachment.extension[]"}, "key": {"call": "last_segment", "args": [{"select": "item.url"}]}, "value": {"call": "coalesce_string", "args": [{"select": "item.valueString"}, {"select": "item.valueUrl"}, {"select": "item.valueCode"}, {"select": "item.valueInteger"}, {"select": "item.valueDecimal"}, {"select": "item.valueBoolean"}, {"select": "item.valueDate"}, {"select": "item.valueDateTime"}]}, "maxColumns": 128}
       ],
       "traversals": [
         {
