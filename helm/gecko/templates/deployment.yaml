@@ -91,7 +91,7 @@ spec:
               {{- else if eq .name "FENCE_BASE_URL" }}
                 {{ default (printf "https://%s/user" $.Values.global.hostname) .value | quote }}
               {{- else if eq .name "SYFON_DATA_API_BASE_URL" }}
-                {{ default (printf "https://%s/data" $.Values.global.hostname) .value | quote }}
+                {{ default "http://syfon:8080" .value | quote }}
               {{- else }}
                 {{ .value | quote }}
               {{- end }}
