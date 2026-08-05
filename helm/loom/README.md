@@ -71,8 +71,10 @@ curl -F project=ARANGODB_PROTO \
 For a real cluster, use a managed Loom image registry. If the Loom server is
 configured to use ClickHouse, set `server.clickhouse.url` (or
 `server.clickhouse.host` and `port`) and set `server.waitForBackends` false
-unless the endpoint is reachable from a BusyBox init container. The chart's
-liveness/readiness probes use `/health`; dependency checks are cached for 30 seconds.
+unless the endpoint is reachable from a BusyBox init container. The chart uses
+`/livez` for process liveness and `/readyz` for dependency-aware readiness;
+override `probes.liveness.path` or `probes.readiness.path` only for an older
+Loom image that does not expose the split health endpoints.
 
 To run Loom without ClickHouse, set `server.clickhouse.enabled: false`. The
 chart then emits an empty ClickHouse URL and omits the ClickHouse wait

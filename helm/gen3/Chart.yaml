@@ -96,7 +96,7 @@ dependencies:
   repository: "file://../syfon"
   condition: syfon.enabled
 - name: loom
-  version: 0.1.0
+  version: 0.1.1
   repository: "file://../loom"
   condition: loom.enabled
     #- name: qdrant

@@ -98,7 +98,7 @@ spec:
             {{- end }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: {{ .Values.probes.liveness.path | quote }}
               port: http
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
@@ -106,7 +106,7 @@ spec:
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: {{ .Values.probes.readiness.path | quote }}
               port: http
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}

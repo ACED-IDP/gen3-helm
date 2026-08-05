@@ -80,11 +80,13 @@ auth:
 
 probes:
   liveness:
+    path: /livez
     initialDelaySeconds: 15
     periodSeconds: 30
     timeoutSeconds: 3
     failureThreshold: 6
   readiness:
+    path: /readyz
     initialDelaySeconds: 5
     periodSeconds: 30
     timeoutSeconds: 3
