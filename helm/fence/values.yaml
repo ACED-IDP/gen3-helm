@@ -47,8 +47,6 @@ global:
   revproxyArn: arn:aws:acm:us-east-1:123456:certificate
   # -- (string) URL of the data dictionary.
   dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
-  # -- (string) Portal application name.
-  portalApp: gitops
   # -- (string) S3 bucket name for Kubernetes manifest files.
   kubeBucket: kube-gen3
   # -- (string) S3 bucket name for log files.
@@ -1743,7 +1741,7 @@ FENCE_CONFIG:
   #           as the default
   # //////////////////////////////////////////////////////////////////////////////////////
 
-  # List of enabled login options (used by data-portal to display login buttons).
+  # List of enabled login options (used by frontend-framework to display login buttons).
   # Each option must be configured with a "name" and an "idp".
   # - "idp" must be a configured provider in OPENID_CONNECT section.
   # Multiple options can be configured with the same idp.
@@ -1754,7 +1752,7 @@ FENCE_CONFIG:
   # default to NIH login.
   # - Optional parameters: "desc" (description) and "secondary" (boolean - can
   # be used by the frontend to display secondary buttons differently).
-  # -- (list) List of enabled login options (used by data-portal to display login buttons).
+  # -- (list) List of enabled login options (used by frontend-framework to display login buttons).
   LOGIN_OPTIONS:
     - name: 'Login from Google'
       desc: 'description'

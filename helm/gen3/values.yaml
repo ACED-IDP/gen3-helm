@@ -46,8 +46,6 @@ global:
   revproxyArn: arn:aws:acm:us-east-1:123456:certificate
   # -- (string) URL of the data dictionary.
   dictionaryUrl: https://s3.amazonaws.com/dictionary-artifacts/datadictionary/develop/schema.json
-  # -- (string) Portal application name.
-  portalApp: gitops
   # -- (bool) Whether public datasets are enabled.
   publicDataSets: true
   # -- (string) Access level for tiers. acceptable values for `tier_access_level` are: `libre`, `regular` and `private`. If omitted, by default common will be treated as `private`
@@ -62,8 +60,6 @@ global:
   ddEnabled: false
   # -- (map) If you would like to add any extra values to the manifest-global configmap.
   manifestGlobalExtraValues: {}
-  # -- (string) Which app will be served on /. Needs be set to portal for portal, or "gen3ff" for frontendframework.
-  frontendRoot: "portal"
   # -- (map) External Secrets settings.
   externalSecrets:
     # -- (bool) Will use ExternalSecret resources to pull secrets from Secrets Manager instead of creating them locally. Be cautious as this will override secrets you have deployed.
@@ -128,7 +124,7 @@ fence:
 # -- (map) Configurations for frontend-framework chart.
 frontend-framework:
   # -- (bool) Whether to deploy the frontend-framework subchart.
-  enabled: false
+  enabled: true
   # -- (map) Docker image information.
   image:
     # -- (string) The Docker image repository for the frontend-framework.
@@ -211,10 +207,6 @@ hatchery:
         fs-gid: 100
         user-volume-location: "/home/jovyan/pd"
         gen3-volume-location: "/home/jovyan/.gen3"
-
-portal:
-  # -- (bool) Whether to deploy the portal subchart.
-  enabled: true
 
 requestor:
   # -- (bool) Whether to deploy the requestor subchart.
