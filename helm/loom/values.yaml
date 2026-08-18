@@ -64,7 +64,9 @@ config:
       request_timeout: 5s
       cache_ttl: 30s
 
-# Empty uses files/default-dataframer.json. Override with
+# Empty uses files/default-dataframer.json, the executable repository Explorer
+# baseline. It must not contain Builder presentation fields such as views,
+# filters, charts, table columns, or file actions. Override with
 # --set-file dataframer.recipe=/path/to/recipe.json.
 dataframer:
   recipe: ""

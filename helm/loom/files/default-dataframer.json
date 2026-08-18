@@ -1,7 +1,7 @@
 {
   "recipeSchemaVersion": 1,
   "name": "calypr-meta-default",
-  "translationVersion": "gen3-util-development-d461f11c7f0ccb078128349ccffd377e4014b62a-explicit-attachment-compat",
+  "translationVersion": "gen3-util-development-d461f11c7f0ccb078128349ccffd377e4014b62a-extension-columns-v1",
   "outputs": [
     {
       "name": "DocumentReference",
@@ -22,9 +22,11 @@
       ],
       "dynamicColumns": [
         {"name": "legacy_identifier_keys", "columnPrefix": "", "source": {"select": "root.identifier[]"}, "key": {"call": "last_segment", "args": [{"select": "item.system"}]}, "value": {"select": "item.value"}, "maxColumns": 64},
-        {"name": "legacy_extension_keys", "columnPrefix": "", "source": {"select": "root.extension[]"}, "key": {"call": "last_segment", "args": [{"select": "item.url"}]}, "value": {"call": "coalesce_string", "args": [{"select": "item.valueString"}, {"select": "item.valueUrl"}, {"select": "item.valueCode"}, {"select": "item.valueInteger"}, {"select": "item.valueDecimal"}, {"select": "item.valueBoolean"}, {"select": "item.valueDate"}, {"select": "item.valueDateTime"}]}, "maxColumns": 128},
-        {"name": "legacy_category_keys", "columnPrefix": "", "source": {"select": "root.category[].coding[]"}, "key": {"call": "last_segment", "args": [{"select": "item.system"}]}, "value": {"select": "item.display"}, "maxColumns": 256},
-        {"name": "attachment_extension_keys", "columnPrefix": "", "source": {"select": "root.content[].attachment.extension[]"}, "key": {"call": "last_segment", "args": [{"select": "item.url"}]}, "value": {"call": "coalesce_string", "args": [{"select": "item.valueString"}, {"select": "item.valueUrl"}, {"select": "item.valueCode"}, {"select": "item.valueInteger"}, {"select": "item.valueDecimal"}, {"select": "item.valueBoolean"}, {"select": "item.valueDate"}, {"select": "item.valueDateTime"}]}, "maxColumns": 128}
+        {"name": "legacy_category_keys", "columnPrefix": "", "source": {"select": "root.category[].coding[]"}, "key": {"call": "last_segment", "args": [{"select": "item.system"}]}, "value": {"select": "item.display"}, "maxColumns": 256}
+      ],
+      "extensionColumns": [
+        {"name": "legacy_extension_keys", "columnPrefix": "", "source": {"select": "root.extension[]"}, "maxColumns": 128},
+        {"name": "attachment_extension_keys", "columnPrefix": "", "source": {"select": "root.content[].attachment.extension[]"}, "maxColumns": 128}
       ],
       "traversals": [
         {

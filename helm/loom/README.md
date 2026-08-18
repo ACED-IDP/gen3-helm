@@ -58,6 +58,14 @@ When ClickHouse is enabled, the chart mounts
 `server.dataframer.recipe` to that path. Override the recipe without rebuilding
 Loom:
 
+This file is Loom's repository Explorer baseline. It is intentionally an
+executable recipe only: its fields, dynamic columns, traversals, catalog
+projections, and pivots define the live dataset shape. Do not add `views`,
+filters, charts, table columns, or file actions here; those are presentation
+owned by custom Builder Explorers. Loom derives default schema/readiness and
+publication metadata from the materialized generation and exposes it through
+the Explorer REST resource.
+
 ```bash
 helm upgrade --install loom ./helm/loom \
   --namespace loom --create-namespace \
