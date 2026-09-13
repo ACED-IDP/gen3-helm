@@ -4,7 +4,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "syfon.fullname" . }}
+  name: {{ include "syfon.deploymentName" . }}
   labels:
     {{- include "syfon.labels" . | nindent 4 }}
 spec:
@@ -81,6 +81,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "syfon.appDbSecretName" . }}
                   key: db_sslmode
+            - name: DRS_DB_ALLOW_INSECURE_TRANSPORT
+              value: {{ .Values.postgres.app.allowInsecureTransport | quote }}
+            - name: DRS_DB_MAX_OPEN_CONNECTIONS
+              value: {{ .Values.postgres.pool.maxOpenConnections | quote }}
+            - name: DRS_DB_MAX_IDLE_CONNECTIONS
+              value: {{ .Values.postgres.pool.maxIdleConnections | quote }}
+            - name: DRS_DB_CONNECTION_MAX_LIFETIME_SECONDS
+              value: {{ .Values.postgres.pool.connectionMaxLifetimeSeconds | quote }}
+            - name: DRS_DB_CONNECTION_MAX_IDLE_TIME_SECONDS
+              value: {{ .Values.postgres.pool.connectionMaxIdleTimeSeconds | quote }}
             {{- with .Values.extraEnv }}
 {{- toYaml . | nindent 12 }}
             {{- end }}

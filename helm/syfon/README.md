@@ -164,7 +164,7 @@ To reuse existing DB secrets:
 
 ## Health Probes
 
-The chart configures both readiness and liveness probes against `GET /healthz` on the container `http` port.
+The liveness probe calls `GET /livez` and reports only whether the process is serving. The readiness probe calls `GET /readyz` and checks the database before the pod receives traffic.
 
 Tune probe behavior via:
 
@@ -176,3 +176,5 @@ Tune probe behavior via:
 By default this chart now inherits PostgreSQL host/port/admin credentials from `global.postgres.master.*` (the same pattern used by other Gen3 charts).
 
 Service-specific values under `postgres.app.*` and `postgres.admin.*` still override global values when set.
+
+When `postgres.initJob.enabled=true`, every Helm revision creates a bounded DB-init Job. The job waits for PostgreSQL, creates the application role and database when needed, and applies only schema migrations that are not already recorded. Reinstalling or upgrading the chart does not require a separate Syfon migration command.
